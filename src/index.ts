@@ -28,11 +28,11 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 });
 
 // Start server
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
 }
 
 // Export for Vercel
-export default app;
+module.exports = app;
