@@ -5,6 +5,9 @@ import { validateApiKey } from './middleware/validateApiKey';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
+const API_URL = process.env.VITE_API_URL || 'https://api.humanface.xyz';
+const KYC_URL = process.env.VITE_KYC_URL || 'https://kyc.humanface.xyz';
+
 dotenv.config();
 
 const app = express();
@@ -23,7 +26,7 @@ app.use(express.json());
 app.get('/', (req: Request, res: Response) => {
   res.json({
     message: 'Welcome to HumanFace API',
-    version: '1.0.0',
+    version: '1.0.1',
     endpoints: {
       '/api/sessions': {
         description: 'Create and manage KYC sessions',
@@ -36,7 +39,8 @@ app.get('/', (req: Request, res: Response) => {
         auth: 'API Key required'
       }
     },
-    documentation: 'https://docs.humanface.xyz'
+    documentation: 'https://docs.humanface.xyz',
+    baseUrl: API_URL
   });
 });
 
@@ -166,7 +170,7 @@ app.post('/api/sessions', async (req: Request, res: Response) => {
     );
 
     // Return session URL
-    const sessionUrl = `${process.env.VITE_APP_URL}/kyc?session_id=${session.id}`;
+    const sessionUrl = `${KYC_URL}?session_id=${session.id}`;
     res.json({
       sessionId: session.id,
       sessionUrl,

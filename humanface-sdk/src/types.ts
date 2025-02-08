@@ -2,6 +2,7 @@ export interface HumanFaceConfig {
   apiKey: string;
   enterpriseId: string;
   baseUrl?: string;
+  kycUrl?: string;
 }
 
 export interface KYCSession {

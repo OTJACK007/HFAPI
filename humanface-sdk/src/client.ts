@@ -9,13 +9,38 @@ export class HumanFaceClient {
   constructor(config: HumanFaceConfig) {
     this.config = config;
     this.client = axios.create({
-      baseURL: config.baseUrl || 'https://api.humanface.xyz',
+      baseURL: this.validateUrl(config.baseUrl, 'https://api.humanface.xyz'),
       headers: {
         'x-api-key': config.apiKey,
         'x-enterprise-id': config.enterpriseId,
         'Content-Type': 'application/json'
       }
     });
+  }
+
+  private validateUrl(url?: string, defaultUrl: string): string {
+    if (!url) return defaultUrl;
+
+    try {
+      const validatedUrl = new URL(url);
+      return validatedUrl.toString().replace(/\/$/, ''); // Remove trailing slash
+    } catch (error) {
+      console.warn('Invalid URL provided, using default:', defaultUrl);
+      return defaultUrl;
+    }
+  }
+
+  /**
+   * Test the API connection
+   */
+  async testConnection(): Promise<boolean> {
+    try {
+      const response = await this.client.get('/');
+      return response.status === 200;
+    } catch (error) {
+      console.error('Connection test failed:', error);
+      return false;
+    }
   }
 
   /**
@@ -25,7 +50,8 @@ export class HumanFaceClient {
     try {
       const response = await this.client.post('/api/sessions', {
         customerEmail,
-        customerName
+        customerName,
+        redirectUrl: this.validateUrl(this.config.kycUrl, 'https://kyc.humanface.xyz')
       });
       return response.data;
     } catch (error) {
