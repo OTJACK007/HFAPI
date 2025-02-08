@@ -9,7 +9,7 @@ export class HumanFaceClient {
   constructor(config: HumanFaceConfig) {
     this.config = config;
     this.client = axios.create({
-      baseURL: this.validateUrl(config.baseUrl, 'https://api.humanface.xyz'),
+      baseURL: this.validateUrl('https://api.humanface.xyz', config.baseUrl),
       headers: {
         'x-api-key': config.apiKey,
         'x-enterprise-id': config.enterpriseId,
@@ -18,7 +18,7 @@ export class HumanFaceClient {
     });
   }
 
-  private validateUrl(url?: string, defaultUrl: string): string {
+  private validateUrl(defaultUrl: string, url?: string): string {
     if (!url) return defaultUrl;
 
     try {
@@ -51,7 +51,7 @@ export class HumanFaceClient {
       const response = await this.client.post('/api/sessions', {
         customerEmail,
         customerName,
-        redirectUrl: this.validateUrl(this.config.kycUrl, 'https://kyc.humanface.xyz')
+        redirectUrl: this.validateUrl('https://kyc.humanface.xyz', this.config.kycUrl)
       });
       return response.data;
     } catch (error) {
