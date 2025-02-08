@@ -19,6 +19,27 @@ const supabase = createClient(
 app.use(cors());
 app.use(express.json());
 
+// Root route
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    message: 'Welcome to HumanFace API',
+    version: '1.0.0',
+    endpoints: {
+      '/api/sessions': {
+        description: 'Create and manage KYC sessions',
+        methods: ['POST'],
+        auth: 'API Key required'
+      },
+      '/api/verify': {
+        description: 'Submit and verify KYC documents',
+        methods: ['POST'],
+        auth: 'API Key required'
+      }
+    },
+    documentation: 'https://docs.humanface.xyz'
+  });
+});
+
 // Protected routes
 app.use('/api/sessions', validateApiKey);
 app.use('/api/verify', validateApiKey);
