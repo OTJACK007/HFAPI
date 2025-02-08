@@ -13,6 +13,17 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to the API!',
+    endpoints: {
+      health: '/health',
+      movies: '/api/v1/movies'
+    }
+  });
+});
+
 // API routes
 app.use('/api/v1', api);
 
