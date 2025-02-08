@@ -1,9 +1,10 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { validateApiKey } from './middleware/validateApiKey';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
+
 dotenv.config();
 
 const app = express();
@@ -24,7 +25,7 @@ app.use('/api/verify', validateApiKey);
 
 // Utility function to send webhook
 const sendWebhook = async (
-  supabase: SupabaseClient,
+  supabase: ReturnType<typeof createClient>,
   enterpriseId: string,
   eventType: string,
   payload: any
@@ -85,7 +86,7 @@ const sendWebhook = async (
             event_type: eventType,
             status: 'failed',
             payload,
-            response: { error: error.message }
+            response: { error: error instanceof Error ? error.message : 'Unknown error' }
           });
       }
     }));
@@ -95,10 +96,11 @@ const sendWebhook = async (
 };
 
 // Create KYC session endpoint
-app.post('/api/sessions', async (req, res) => {
+app.post('/api/sessions', async (req: Request, res: Response) => {
   try {
     const { customerEmail, customerName } = req.body;
-    const { apiKey, enterpriseId } = req;
+    const apiKey = (req as any).apiKey;
+    const enterpriseId = (req as any).enterpriseId;
 
     if (!apiKey || !enterpriseId) {
       return res.status(401).json({ error: 'Invalid API key or enterprise ID' });
@@ -157,158 +159,6 @@ app.post('/api/sessions', async (req, res) => {
   } catch (error) {
     console.error('Error creating session:', error);
     res.status(500).json({ error: 'Failed to create session' });
-  }
-});
-
-// Get session status endpoint
-app.get('/api/sessions/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const { data: session, error } = await supabase
-      .from('kyc_sessions')
-      .select(`
-        *,
-        enterprise:enterprises(name),
-        verification:kyc_verifications(*)
-      `)
-      .eq('id', id)
-      .single();
-
-    if (error) throw error;
-    if (!session) {
-      return res.status(404).json({ error: 'Session not found' });
-    }
-
-    res.json(session);
-
-  } catch (error) {
-    console.error('Error getting session:', error);
-    res.status(500).json({ error: 'Failed to get session' });
-  }
-});
-
-// Submit verification endpoint
-app.post('/api/verify', async (req, res) => {
-  try {
-    const { sessionId, documentType, documentUrl, livenessUrl } = req.body;
-
-    // Get session
-    const { data: session, error: sessionError } = await supabase
-      .from('kyc_sessions')
-      .select('*')
-      .eq('id', sessionId)
-      .single();
-
-    if (sessionError || !session) {
-      return res.status(404).json({ error: 'Session not found' });
-    }
-
-    // Create document record
-    const { data: document, error: docError } = await supabase
-      .from('kyc_documents')
-      .insert({
-        type: documentType,
-        url: documentUrl,
-        verification_method: 'ai'
-      })
-      .select()
-      .single();
-
-    if (docError) throw docError;
-
-    // Create verification record
-    const { data: verification, error: verifyError } = await supabase
-      .from('kyc_verifications')
-      .insert({
-        session_id: sessionId,
-        document_id: document.id,
-        status: 'processing'
-      })
-      .select()
-      .single();
-
-    if (verifyError) throw verifyError;
-
-    // Update session status
-    await supabase
-      .from('kyc_sessions')
-      .update({
-        status: 'processing',
-        verification_id: verification.id
-      })
-      .eq('id', sessionId);
-
-    // Return verification ID
-    res.json({
-      verificationId: verification.id,
-      status: 'processing'
-    });
-
-  } catch (error) {
-    console.error('Error submitting verification:', error);
-    res.status(500).json({ error: 'Failed to submit verification' });
-  }
-});
-
-// Get verification status endpoint
-app.get('/api/verify/:id/status', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const { data: verification, error } = await supabase
-      .from('kyc_verifications')
-      .select(`
-        *,
-        document:kyc_documents(*),
-        liveness_check:liveness_checks(*)
-      `)
-      .eq('id', id)
-      .single();
-
-    if (error) throw error;
-    if (!verification) {
-      return res.status(404).json({ error: 'Verification not found' });
-    }
-
-    // Get session and enterprise info
-    const { data: session } = await supabase
-      .from('kyc_sessions')
-      .select(`
-        *,
-        enterprise:enterprises(id, name)
-      `)
-      .eq('verification_id', id)
-      .single();
-
-    if (session?.enterprise) {
-      // Send webhook
-      await sendWebhook(
-        supabase,
-        session.enterprise.id,
-        'verification.status_update',
-        {
-          verification_id: verification.id,
-          session_id: session.id,
-          status: verification.status,
-          document_status: verification.document?.status,
-          liveness_status: verification.liveness_check?.status,
-          risk_score: verification.risk_score,
-          updated_at: new Date().toISOString()
-        }
-      );
-    }
-
-    res.json({
-      status: verification.status,
-      documentStatus: verification.document?.status,
-      livenessStatus: verification.liveness_check?.status,
-      riskScore: verification.risk_score
-    });
-
-  } catch (error) {
-    console.error('Error getting verification status:', error);
-    res.status(500).json({ error: 'Failed to get verification status' });
   }
 });
 

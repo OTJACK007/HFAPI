@@ -1,9 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabase } from '../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL!,
+  process.env.VITE_SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export const validateApiKey = async (req: Request, res: Response, next: NextFunction) => {
-  const apiKey = req.headers['x-api-key'];
-  const enterpriseId = req.headers['x-enterprise-id'];
+  const apiKey = req.headers['x-api-key'] as string;
+  const enterpriseId = req.headers['x-enterprise-id'] as string;
 
   if (!apiKey || !enterpriseId) {
     return res.status(401).json({ 
@@ -29,8 +35,8 @@ export const validateApiKey = async (req: Request, res: Response, next: NextFunc
     }
 
     // Add validated data to request
-    req.apiKey = keyData;
-    req.enterpriseId = enterpriseId as string;
+    (req as any).apiKey = keyData;
+    (req as any).enterpriseId = enterpriseId;
     
     next();
   } catch (error) {
