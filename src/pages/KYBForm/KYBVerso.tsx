@@ -10,7 +10,6 @@ interface Props {
 }
 
 export default function KYBVerso({ getRootProps, getInputProps, onNext, onBack }: Props) {
-  }
   return (
     <div className="space-y-4">
       <h2 className="mb-6 text-2xl font-bold text-center">Document d'identité (Verso)</h2>
