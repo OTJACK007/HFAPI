@@ -112,11 +112,11 @@ export default function KYCLiveness({ onComplete }: Props) {
                 ) : (
                   <AlertCircle className="w-5 h-5 text-primary" />
                 )}
-                <p className="text-sm font-medium">
+                <p className="text-sm font-medium text-white">
                   {instructions[currentStep]}
                 </p>
                 {countdown && (
-                  <span className="ml-2 w-6 h-6 flex items-center justify-center bg-primary/20 rounded-full text-xs font-bold">
+                  <span className="ml-2 w-6 h-6 flex items-center justify-center bg-primary/20 rounded-full text-xs font-bold text-white">
                     {countdown}
                   </span>
                 )}
