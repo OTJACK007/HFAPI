@@ -8,10 +8,9 @@ interface Props {
 }
 
 export default function KYBVerso({ getRootProps, getInputProps }: Props) {
-  }
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold mb-6 text-center">Document d'identité (Verso)</h2>
+      <h2 className="mb-6 text-2xl font-bold text-center">Document d'identité (Verso)</h2>
       <Card
         {...getRootProps()}
         className="border-2 border-dashed border-primary/50 bg-background/40"
