@@ -13,6 +13,7 @@ import KYCSelectDocType from './KYCForm/KYCSelectDocType';
 import KYCRecto from './KYCForm/KYCRecto';
 import KYCVerso from './KYCForm/KYCVerso';
 import KYCMobile from './KYCForm/KYCMobile';
+import KYCSelfie from './KYCForm/KYCSelfie';
 import KYCLiveness from './KYCForm/KYCLiveness';
 
 export default function KYCForm() {
@@ -43,14 +44,19 @@ export default function KYCForm() {
       return;
     }
     // Logic to capture selfie will be implemented here
+    setStep(step + 1);
   };
 
   const handleNextStep = () => {
-    if (step < 7) {
+    if (step < 8) {
       setStep(step + 1);
     } else {
       navigate('/verifying');
     }
+  };
+
+  const handleLivenessComplete = () => {
+    navigate('/verifying');
   };
 
   const renderStep = () => {
@@ -75,12 +81,15 @@ export default function KYCForm() {
 
       case 7:
         return (
-          <KYCLiveness
+          <KYCSelfie
             isCameraActive={isCameraActive}
             handleCaptureSelfie={handleCaptureSelfie}
             setIsCameraActive={setIsCameraActive}
           />
         );
+        
+      case 8:
+        return <KYCLiveness onComplete={handleLivenessComplete} />;
 
       default:
         return null;
@@ -124,29 +133,29 @@ export default function KYCForm() {
               <div className="space-y-8">
                 {renderStep()}
                 
-                <div className="flex gap-2 pt-4">
-                  {step > 1 && step !== 6 && (
-                    <Button
-                      type="button"
-                      variant="bordered"
-                      onClick={() => setStep(step - 1)}
-                      startContent={<ChevronLeft size={20} />}
-                      className="flex-1 text-white"
-                    >
-                      Retour
-                    </Button>
-                  )}
-                  {step !== 6 && (
+                {step < 6 && (
+                  <div className="flex gap-2 pt-4">
+                    {step > 1 && (
+                      <Button
+                        type="button"
+                        variant="bordered"
+                        onClick={() => setStep(step - 1)}
+                        startContent={<ChevronLeft size={20} />}
+                        className="flex-1 text-white"
+                      >
+                        Retour
+                      </Button>
+                    )}
                     <Button
                       onClick={handleNextStep}
                       color="primary"
                       className={`flex-1 text-white ${step === 1 ? 'w-full' : ''}`}
-                      endContent={step < 7 && <ChevronRight size={20} />}
+                      endContent={<ChevronRight size={20} />}
                     >
-                      {step === 7 ? 'Terminer' : 'Continuer'}
+                      Continuer
                     </Button>
-                  )}
-                </div>
+                  </div>
+                )}
                 <div className="flex flex-col items-center gap-2 mt-8 pt-6 border-t border-white/10">
                   <img
                     src="https://rfpjrfuuupsnlehsmhfo.supabase.co/storage/v1/object/public/myfile/logo%20brands/LogoHumanfaceCarre.png"

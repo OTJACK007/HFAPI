@@ -15,6 +15,7 @@ import KYBRecto from './KYBForm/KYBRecto';
 import KYBVerso from './KYBForm/KYBVerso';
 import KYBSelectDocType from './KYBForm/KYBSelectDocType';
 import KYBMobile from './KYBForm/KYBMobile';
+import KYBSelfie from './KYBForm/KYBSelfie';
 import KYBLiveness from './KYBForm/KYBLiveness';
 
 export default function KYBForm() {
@@ -51,14 +52,19 @@ export default function KYBForm() {
       return;
     }
     // Logic to capture selfie will be implemented here
+    setStep(step + 1);
   };
 
   const handleNextStep = () => {
-    if (step < 8) {
+    if (step < 9) {
       setStep(step + 1);
     } else {
       navigate('/verifying');
     }
+  };
+
+  const handleLivenessComplete = () => {
+    navigate('/verifying');
   };
 
   const renderStep = () => {
@@ -104,12 +110,15 @@ export default function KYBForm() {
 
       case 9:
         return (
-          <KYBLiveness
+          <KYBSelfie
             isCameraActive={isCameraActive}
             handleCaptureSelfie={handleCaptureSelfie}
             setIsCameraActive={setIsCameraActive}
           />
         );
+        
+      case 10:
+        return <KYBLiveness onComplete={handleLivenessComplete} />;
 
       default:
         return null;
@@ -134,11 +143,11 @@ export default function KYBForm() {
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-lg font-semibold">Vérification d'entreprise</h1>
             <span className="text-sm text-primary">
-              {step}/9
+              {step}/10
             </span>
           </div>
           <Progress 
-            value={(step / 9) * 100}
+            value={(step / 10) * 100}
             className="h-1"
             color="primary"
           />
@@ -153,7 +162,7 @@ export default function KYBForm() {
               <div className="space-y-8">
                 {renderStep()}
                 
-                {step !== 4 && step !== 5 && step !== 7 && (
+                {step < 8 && step !== 4 && step !== 5 && step !== 7 && (
                   <div className="flex gap-2 pt-4">
                     {step > 1 && step !== 7 && (
                       <Button
@@ -173,7 +182,7 @@ export default function KYBForm() {
                         className={`flex-1 text-white ${step === 1 ? 'w-full' : ''}`}
                         endContent={step < 8 && <ChevronRight size={20} />}
                       >
-                        {step === 8 ? 'Terminer' : 'Continuer'}
+                        {step === 9 ? 'Terminer' : 'Continuer'}
                       </Button>
                     )}
                   </div>
