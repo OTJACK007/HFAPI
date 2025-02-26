@@ -1,20 +1,28 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from "path"
-import { loadEnv } from 'vite'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  return {
-    plugins: [react()],
-    resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "./src"),
+export default defineConfig({
+  define: {
+    global: 'window',
+  },
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+        },
       },
     },
-    define: {
-      'process.env.VITE_GOOGLEMAP_API_KEY': JSON.stringify(env.VITE_GOOGLEMAP_API_KEY)
-    }
+  },
+  optimizeDeps: {
+    exclude: ['lucide-react'],
   }
 })

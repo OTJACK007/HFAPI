@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Input, Select, SelectItem } from "@nextui-org/react";
 import countryList from "react-select-country-list";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
 import { FormData } from "./types";
 
 interface Props {
@@ -14,45 +18,143 @@ export default function KYCAddress({ register, errors }: Props) {
   const [addressLine, setAddressLine] = useState('');
   const [city, setCity] = useState('');
 
+  const searchOptions = {
+    types: ['address'],
+    componentRestrictions: { country: 'fr' },
+  };
+
+  const citySearchOptions = {
+    types: ['(cities)'],
+    componentRestrictions: { country: 'fr' },
+  };
+
+  const handleAddressSelect = async (selected: string) => {
+    try {
+      const results = await geocodeByAddress(selected);
+      
+      // Update form values
+      setAddressLine(selected);
+      register('addressLine').onChange({ target: { value: selected } });
+
+      // Extract city from address components
+      const addressComponents = results[0].address_components;
+      const cityComponent = addressComponents.find(component => 
+        component.types.includes('locality')
+      );
+      if (cityComponent) {
+        setCity(cityComponent.long_name);
+        register('city').onChange({ target: { value: cityComponent.long_name } });
+      }
+    } catch (error) {
+      console.error('Error', error);
+    }
+  };
+
+  const handleCitySelect = async (selected: string) => {
+    try {
+      const results = await geocodeByAddress(selected);
+      setCity(selected);
+      register('city').onChange({ target: { value: selected } });
+    } catch (error) {
+      console.error('Error selecting city:', error);
+    }
+  };
+
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-6 text-center">Adresse</h2>
       <div className="space-y-4">
-        <Input
+        <PlacesAutocomplete
           value={addressLine}
-          onChange={(e) => {
-            setAddressLine(e.target.value);
-            register('addressLine').onChange(e);
-          }}
-          placeholder="Entrez votre adresse"
-          label="Ligne d'adresse"
-          variant="bordered"
-          color="primary"
-          isInvalid={!!errors.addressLine}
-          errorMessage={errors.addressLine?.message}
-          classNames={{
-            label: "text-white/90",
-            input: "text-white",
-          }}
-        />
+          onChange={setAddressLine}
+          onSelect={handleAddressSelect}
+          searchOptions={searchOptions}
+          shouldFetchSuggestions={addressLine.length > 3}
+        >
+          {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+            <div className="relative">
+              <Input
+                {...getInputProps({
+                  placeholder: "Entrez votre adresse",
+                })}
+                placeholder="Entrez votre adresse"
+                label="Ligne d'adresse"
+                variant="bordered"
+                color="primary"
+                isInvalid={!!errors.addressLine}
+                errorMessage={errors.addressLine?.message}
+                onChange={(e) => setAddressLine(e.target.value)}
+                classNames={{
+                  label: "text-white/90",
+                  input: "text-white",
+                }}
+              />
+              {(loading || suggestions.length > 0) && (
+                <div className="absolute z-10 w-full bg-background border border-white/10 rounded-md mt-1">
+                  {loading && (
+                    <div className="p-2 text-sm text-white/70">Chargement...</div>
+                  )}
+                  {suggestions.map(suggestion => (
+                    <div
+                      {...getSuggestionItemProps(suggestion)}
+                      key={suggestion.placeId}
+                      className="p-2 text-sm text-white hover:bg-white/10 cursor-pointer"
+                    >
+                      {suggestion.description}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </PlacesAutocomplete>
 
-        <Input
+        <PlacesAutocomplete
           value={city}
-          onChange={(e) => {
-            setCity(e.target.value);
-            register('city').onChange(e);
-          }}
-          placeholder="Entrez votre ville"
-          label="Ville"
-          variant="bordered"
-          color="primary"
-          isInvalid={!!errors.city}
-          errorMessage={errors.city?.message}
-          classNames={{
-            label: "text-white/90",
-            input: "text-white",
-          }}
-        />
+          onChange={setCity}
+          onSelect={handleCitySelect}
+          searchOptions={citySearchOptions}
+          shouldFetchSuggestions={city.length > 2}
+        >
+          {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+            <div className="relative">
+              <Input
+                {...getInputProps({
+                  placeholder: "Entrez votre ville",
+                  className: "max-w-full",
+                })}
+                placeholder="Entrez votre ville"
+                label="Ville"
+                variant="bordered"
+                color="primary"
+                isInvalid={!!errors.city}
+                errorMessage={errors.city?.message}
+                onChange={(e) => setCity(e.target.value)}
+                classNames={{
+                  label: "text-white/90",
+                  input: "text-white",
+                }}
+              />
+              {(loading || suggestions.length > 0) && (
+                <div className="absolute z-10 w-full bg-background border border-white/10 rounded-md mt-1">
+                  {loading && (
+                    <div className="p-2 text-sm text-white/70">Chargement...</div>
+                  )}
+                  {suggestions.map(suggestion => (
+                    <div
+                      {...getSuggestionItemProps(suggestion)}
+                      key={suggestion.placeId}
+                      className="p-2 text-sm text-white hover:bg-white/10 cursor-pointer"
+                    >
+                      {suggestion.description}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </PlacesAutocomplete>
 
         <Select
           {...register('country')}
