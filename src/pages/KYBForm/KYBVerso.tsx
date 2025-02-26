@@ -49,6 +49,5 @@ export default function KYBVerso({ getRootProps, getInputProps, onNext, onBack }
         </Button>
       </div>
     </div>
-
-  )
+  );
 }
