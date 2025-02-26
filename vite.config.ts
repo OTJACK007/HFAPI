@@ -21,6 +21,8 @@ export default defineConfig({
         },
       },
     },
+    sourcemap: false,
+    minify: true,
   },
   optimizeDeps: {
     exclude: ['lucide-react'],
