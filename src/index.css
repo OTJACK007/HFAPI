@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark theme text colors */
+h1, h2, h3, h4, h5, h6 {
+  @apply text-white;
+}
+
+/* Button text color */
+button {
+  @apply text-white;
+}
+
+/* Input styles */
+input, select {
+  color: white !important;
+  background-color: transparent !important;
+}
+
+/* Select dropdown styles */
+[data-slot="select-content"] {
+  background-color: #1A1A1A !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-slot="select-item"] {
+  color: white !important;
+}
+
+[data-slot="select-item"][data-hover="true"] {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-slot="select-item"][data-selected="true"] {
+  background-color: rgba(255, 51, 102, 0.2) !important;
+  color: #ff3366 !important;
+}
+
+/* Autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: white !important;
+  -webkit-box-shadow: 0 0 0 30px #1A1A1A inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.nextui-input-wrapper {
+  background-color: transparent !important;
+}
+
+body {
+  @apply bg-background text-white touch-manipulation;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-text {
+  animation: pulse-text 2s ease-in-out infinite;
+}
+
+/* Custom styles for react-phone-input-2 */
+.react-tel-input .country-list {
+  background-color: #1A1A1A !important;
+  color: white !important;
+}
+
+.react-tel-input .country-list .country:hover {
+  background-color: #333 !important;
+}
+
+.react-tel-input .selected-flag:hover,
+.react-tel-input .selected-flag:focus {
+  background-color: transparent !important;
+}
+
+.react-tel-input .country-list .country.highlight {
+  background-color: #333 !important;
+}
