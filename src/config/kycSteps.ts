@@ -16,6 +16,10 @@ export interface KYCStepConfig {
   documentRectoCapture: boolean;
   documentVersoCapture: boolean;
   
+  // Justificatif de domicile
+  addressDocSelection: boolean;
+  addressDocCapture: boolean;
+  
   // Vérification biométrique
   mobileOption: boolean; // Cette étape est toujours activée dans la config, mais sera sautée automatiquement sur mobile
   selfieCapture: boolean;
@@ -32,6 +36,8 @@ export const defaultKYCConfig: KYCStepConfig = {
   documentIdNumber: true,
   documentRectoCapture: true,
   documentVersoCapture: true,
+  addressDocSelection: true,
+  addressDocCapture: true,
   mobileOption: true, // Obligatoire dans la configuration, mais sera ignoré sur mobile
   selfieCapture: true,
   livenessDetection: true
@@ -49,6 +55,8 @@ export function getActiveKYCSteps(config: KYCStepConfig = defaultKYCConfig): str
   if (config.documentIdNumber) steps.push('documentIdNumber');
   if (config.documentRectoCapture) steps.push('documentRectoCapture');
   if (config.documentVersoCapture) steps.push('documentVersoCapture');
+  if (config.addressDocSelection) steps.push('addressDocSelection');
+  if (config.addressDocCapture) steps.push('addressDocCapture');
   if (config.mobileOption) steps.push('mobileOption'); // Toujours inclus dans les étapes actives selon la config
   if (config.selfieCapture) steps.push('selfieCapture');
   if (config.livenessDetection) steps.push('livenessDetection');
@@ -66,6 +74,8 @@ export const minimalKYCConfig: KYCStepConfig = {
   documentIdNumber: true,
   documentRectoCapture: true,
   documentVersoCapture: false,
+  addressDocSelection: false,
+  addressDocCapture: false,
   mobileOption: true, // Toujours obligatoire dans la config
   selfieCapture: false,
   livenessDetection: false
@@ -80,6 +90,8 @@ export const standardKYCConfig: KYCStepConfig = {
   documentIdNumber: true,
   documentRectoCapture: true,
   documentVersoCapture: true,
+  addressDocSelection: true,
+  addressDocCapture: true,
   mobileOption: true, // Toujours obligatoire dans la config
   selfieCapture: true,
   livenessDetection: false

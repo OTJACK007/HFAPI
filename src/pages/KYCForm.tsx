@@ -23,6 +23,8 @@ import KYCVerso from './KYCForm/KYCVerso';
 import KYCMobile from './KYCForm/KYCMobile';
 import KYCSelfie from './KYCForm/KYCSelfie';
 import KYCLiveness from './KYCForm/KYCLiveness';
+import KYCSelectDocAddress from './KYCForm/KYCSelectDocAddress';
+import KYCProofAddress from './KYCForm/KYCProofAddress';
 
 // Vous pouvez importer ou définir dynamiquement votre configuration depuis votre API/base de données
 // Par exemple: const kycConfig = await fetchKYCConfigFromDatabase(); 
@@ -41,13 +43,15 @@ export default function KYCForm({
   const navigate = useNavigate();
   const [documentFront, setDocumentFront] = useState<File | null>(null);
   const [documentBack, setDocumentBack] = useState<File | null>(null);
+  const [addressDoc, setAddressDoc] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
 
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      documentType: 'id'
+      documentType: 'id',
+      addressDocType: 'bill'
     }
   });
   
@@ -56,6 +60,12 @@ export default function KYCForm({
     control,
     name: 'documentType',
     defaultValue: 'id'
+  });
+  
+  const addressDocType = useWatch({
+    control,
+    name: 'addressDocType',
+    defaultValue: 'bill'
   });
   
   const email = watch('email', '');
@@ -69,6 +79,11 @@ export default function KYCForm({
   const { getRootProps: getBackProps, getInputProps: getBackInputProps } = useDropzone({
     accept: { 'image/*': [] },
     onDrop: files => setDocumentBack(files[0]),
+  });
+  
+  const { getRootProps: getAddressDocProps, getInputProps: getAddressDocInputProps } = useDropzone({
+    accept: { 'image/*': [], 'application/pdf': [] },
+    onDrop: files => setAddressDoc(files[0]),
   });
 
   const handleCaptureSelfie = () => {
@@ -161,8 +176,25 @@ export default function KYCForm({
           getInputProps={getBackInputProps}
           fieldConfig={fieldConfig}
         />;
+        
+      case 'addressDocSelection':
+        return <KYCSelectDocAddress 
+          register={register} 
+          errors={errors} 
+          fieldConfig={fieldConfig} 
+        />;
+        
+      case 'addressDocCapture':
+        return <KYCProofAddress 
+          getRootProps={getAddressDocProps} 
+          getInputProps={getAddressDocInputProps}
+          fieldConfig={fieldConfig}
+          addressDocType={addressDocType}
+        />;
 
       case 'mobileOption':
+        // Si on est sur mobile, cette étape ne devrait jamais s'afficher
+        // car elle est filtrée dans useKYCFlow
         return <KYCMobile onContinueOnDevice={() => nextStep()} />;
 
       case 'selfieCapture':
@@ -184,7 +216,13 @@ export default function KYCForm({
 
   // Déterminer si les boutons de navigation doivent être affichés
   const showNavButtons = () => {
-    const noButtonSteps = ['emailVerification', 'phoneVerification', 'documentIdNumber', 'mobileOption', 'livenessDetection'];
+    const noButtonSteps = [
+      'emailVerification', 
+      'phoneVerification', 
+      'documentIdNumber', 
+      'mobileOption', 
+      'livenessDetection'
+    ];
     return !noButtonSteps.includes(currentStep?.id || '');
   };
 

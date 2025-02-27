@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button, Card, Progress } from "@nextui-org/react";
-import { Camera, AlertCircle, CheckCircle, ArrowRight } from "lucide-react";
+import { Camera, AlertCircle, CheckCircle, ArrowRight, RotateCw } from "lucide-react";
 import Webcam from "react-webcam";
 
 interface Props {
@@ -13,12 +13,17 @@ export default function KYBLiveness({ onComplete }: Props) {
   const [progress, setProgress] = useState(0);
   const webcamRef = useRef<Webcam>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   
   const instructions = {
     center: "Placez le visage du représentant au centre",
     left: "Tournez légèrement la tête vers la gauche",
     right: "Tournez légèrement la tête vers la droite",
     done: "Liveness détecté avec succès !"
+  };
+  
+  const flipCamera = () => {
+    setFacingMode(prevMode => (prevMode === "user" ? "environment" : "user"));
   };
 
   useEffect(() => {
@@ -87,6 +92,9 @@ export default function KYBLiveness({ onComplete }: Props) {
               ref={webcamRef}
               screenshotFormat="image/jpeg"
               className="w-full rounded-xl"
+              videoConstraints={{
+                facingMode: facingMode
+              }}
             />
             
             {/* Face guide overlay */}
@@ -99,6 +107,19 @@ export default function KYBLiveness({ onComplete }: Props) {
                 ${currentStep === 'right' ? '-translate-x-4' : ''}
                 transition-all duration-500
               `}></div>
+            </div>
+            
+            {/* Flip camera button */}
+            <div className="absolute top-4 right-4">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="flat"
+                className="bg-background/50 backdrop-blur-sm"
+                onClick={flipCamera}
+              >
+                <RotateCw className="w-4 h-4 text-white" />
+              </Button>
             </div>
             
             {/* Step indicator */}

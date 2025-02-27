@@ -48,14 +48,23 @@ export interface KYBFieldConfig {
     license: boolean;   // Permis de conduire
   };
   
+  // Types de justificatifs de domicile de l'entreprise
+  businessAddressDocTypes: {
+    bill: boolean;          // Facture (électricité, eau, etc.)
+    certificate: boolean;   // Attestation de domicile
+    bankStatement: boolean; // Relevé bancaire
+    leaseAgreement: boolean; // Contrat de bail
+  };
+  
   // Options de capture de documents
   documentCapture: {
-    allowDocumentUpload: boolean; // Permettre l'upload de document du représentant (vs uniquement capture caméra)
-    allowCompanyDocumentUpload: boolean; // Permettre l'upload de document d'entreprise (vs uniquement capture caméra)
+    allowDocumentUpload: boolean;         // Permettre l'upload de document du représentant (vs uniquement capture caméra)
+    allowCompanyDocumentUpload: boolean;  // Permettre l'upload de document d'entreprise (vs uniquement capture caméra)
+    allowAddressDocumentUpload: boolean;  // Permettre l'upload de justificatif de domicile
   };
 }
 
-// Configuration par défaut - tous les champs sont visibles
+// Configuration par défaut (tous les champs sont visibles)
 export const defaultKYBFieldConfig: KYBFieldConfig = {
   companyInfo: {
     companyName: true,        // Obligatoire
@@ -94,9 +103,16 @@ export const defaultKYBFieldConfig: KYBFieldConfig = {
     residence: true,
     license: true
   },
+  businessAddressDocTypes: {
+    bill: true,
+    certificate: true,
+    bankStatement: true,
+    leaseAgreement: true
+  },
   documentCapture: {
     allowDocumentUpload: true,
-    allowCompanyDocumentUpload: true
+    allowCompanyDocumentUpload: true,
+    allowAddressDocumentUpload: true
   }
 };
 
@@ -139,9 +155,16 @@ export const minimalKYBFieldConfig: KYBFieldConfig = {
     residence: false,
     license: false
   },
+  businessAddressDocTypes: {
+    bill: true,
+    certificate: false,
+    bankStatement: false,
+    leaseAgreement: true
+  },
   documentCapture: {
     allowDocumentUpload: false,
-    allowCompanyDocumentUpload: false
+    allowCompanyDocumentUpload: false,
+    allowAddressDocumentUpload: false
   }
 };
 
@@ -183,8 +206,15 @@ export const standardKYBFieldConfig: KYBFieldConfig = {
     residence: true,
     license: false
   },
+  businessAddressDocTypes: {
+    bill: true,
+    certificate: true,
+    bankStatement: true,
+    leaseAgreement: true
+  },
   documentCapture: {
     allowDocumentUpload: true,
-    allowCompanyDocumentUpload: true
+    allowCompanyDocumentUpload: true,
+    allowAddressDocumentUpload: true
   }
 };

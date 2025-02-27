@@ -17,6 +17,10 @@ export interface KYBStepConfig {
   businessDocType: boolean;
   businessDocCapture: boolean;
   
+  // Justificatif de domicile
+  addressDocSelection: boolean;
+  addressDocCapture: boolean;
+  
   // Documents d'identité du représentant
   idDocSelection: boolean;
   idDocNumber: boolean;
@@ -38,6 +42,8 @@ export const defaultKYBConfig: KYBStepConfig = {
   addressInfo: true,
   businessDocType: true,
   businessDocCapture: true,
+  addressDocSelection: true,
+  addressDocCapture: true,
   idDocSelection: true,
   idDocNumber: true,
   idDocRectoCapture: true,
@@ -58,6 +64,8 @@ export function getActiveKYBSteps(config: KYBStepConfig = defaultKYBConfig): str
   if (config.addressInfo) steps.push('addressInfo');
   if (config.businessDocType) steps.push('businessDocType');
   if (config.businessDocCapture) steps.push('businessDocCapture');
+  if (config.addressDocSelection) steps.push('addressDocSelection');
+  if (config.addressDocCapture) steps.push('addressDocCapture');
   if (config.idDocSelection) steps.push('idDocSelection');
   if (config.idDocNumber) steps.push('idDocNumber');
   if (config.idDocRectoCapture) steps.push('idDocRectoCapture');
@@ -78,6 +86,8 @@ export const minimalKYBConfig: KYBStepConfig = {
   addressInfo: true,
   businessDocType: true,
   businessDocCapture: true,
+  addressDocSelection: false,
+  addressDocCapture: false,
   idDocSelection: true,
   idDocNumber: true,
   idDocRectoCapture: true,
@@ -95,6 +105,8 @@ export const standardKYBConfig: KYBStepConfig = {
   addressInfo: true,
   businessDocType: true,
   businessDocCapture: true,
+  addressDocSelection: true,
+  addressDocCapture: true,
   idDocSelection: true,
   idDocNumber: true,
   idDocRectoCapture: true,

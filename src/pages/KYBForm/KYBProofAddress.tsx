@@ -1,37 +1,67 @@
 import { useState } from "react";
 import { Card, CardBody, Button } from "@nextui-org/react";
-import { Upload, Camera, RefreshCw, RotateCw } from "lucide-react";
+import { Upload, Camera, FileText, ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
 import { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import Webcam from "react-webcam";
-import { KYCFieldConfig, defaultKYCFieldConfig } from "../../config/kycFields";
+import { KYBFieldConfig, defaultKYBFieldConfig } from "../../config/kybFields";
 
 interface Props {
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T) => T;
-  fieldConfig?: KYCFieldConfig;
+  onNext: () => void;
+  onBack: () => void;
+  fieldConfig?: KYBFieldConfig;
+  addressDocType?: string;
 }
 
-export default function KYCRecto({ getRootProps, getInputProps, fieldConfig = defaultKYCFieldConfig }: Props) {
+export default function KYBProofAddress({ 
+  getRootProps, 
+  getInputProps, 
+  onNext, 
+  onBack, 
+  fieldConfig = defaultKYBFieldConfig,
+  addressDocType = "bill"
+}: Props) {
   const [useCamera, setUseCamera] = useState(true);
   const [isCaptureReady, setIsCaptureReady] = useState(false);
   const webcamRef = useState<Webcam | null>(null)[0];
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   
   // Option d'upload de document activée ou non
-  const allowUpload = fieldConfig.documentCapture.allowDocumentUpload;
+  const allowUpload = fieldConfig.documentCapture.allowAddressDocumentUpload;
+
+  // Fonction pour obtenir le titre du document en fonction du type
+  const getDocumentTitle = () => {
+    switch (addressDocType) {
+      case "bill": return "Facture";
+      case "certificate": return "Attestation de domicile";
+      case "bankStatement": return "Relevé bancaire";
+      case "leaseAgreement": return "Contrat de bail";
+      default: return "Justificatif de domicile";
+    }
+  };
 
   const handleCapture = () => {
     // Logic to capture the document would be implemented here
-    setIsCaptureReady(true);
+    onNext();
   };
-
+  
   const flipCamera = () => {
     setFacingMode(prevMode => (prevMode === "user" ? "environment" : "user"));
   };
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold mb-6 text-center">Photo recto du document</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        Justificatif de domicile professionnel
+      </h2>
+      
+      <div className="flex items-center gap-3 bg-primary/10 p-3 rounded-lg mb-4">
+        <FileText className="text-primary w-6 h-6 flex-shrink-0" />
+        <p className="text-sm text-white">
+          Veuillez prendre en photo votre {getDocumentTitle().toLowerCase()} ou télécharger le document
+        </p>
+      </div>
       
       {useCamera ? (
         <div className="space-y-4">
@@ -105,7 +135,10 @@ export default function KYCRecto({ getRootProps, getInputProps, fieldConfig = de
               <div className="flex flex-col items-center justify-center text-center">
                 <Upload className="w-12 h-12 mb-4 text-primary" />
                 <p className="text-sm text-gray-400">
-                  Téléchargez votre document ou sélectionnez une image
+                  Téléchargez votre {getDocumentTitle().toLowerCase()} ou sélectionnez une image
+                </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  Formats acceptés : PDF, JPG, PNG
                 </p>
                 <input {...getInputProps()} />
               </div>
@@ -123,15 +156,24 @@ export default function KYCRecto({ getRootProps, getInputProps, fieldConfig = de
         </div>
       )}
       
-      {/* Common instructions */}
-      <div className="mt-4 p-4 bg-background/40 border border-white/10 rounded-lg">
-        <h3 className="text-sm font-semibold mb-2">Instructions</h3>
-        <ul className="text-sm text-gray-400 space-y-2">
-          <li>• Assurez-vous que le document est bien éclairé</li>
-          <li>• Tous les détails doivent être clairement visibles</li>
-          <li>• Le document doit être entièrement visible dans le cadre</li>
-          <li>• Évitez les reflets ou les ombres sur le document</li>
-        </ul>
+      <div className="flex gap-2 pt-4">
+        <Button
+          type="button"
+          variant="bordered"
+          onClick={onBack}
+          startContent={<ChevronLeft size={20} />}
+          className="flex-1 text-white"
+        >
+          Retour
+        </Button>
+        <Button
+          onClick={onNext}
+          color="primary"
+          className="flex-1 text-white"
+          endContent={<ChevronRight size={20} />}
+        >
+          Continuer
+        </Button>
       </div>
     </div>
   );

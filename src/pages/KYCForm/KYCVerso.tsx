@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardBody, Button } from "@nextui-org/react";
-import { Upload, Camera } from "lucide-react";
+import { Upload, Camera, RotateCw } from "lucide-react";
 import { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import Webcam from "react-webcam";
 import { KYCFieldConfig, defaultKYCFieldConfig } from "../../config/kycFields";
@@ -15,6 +15,7 @@ export default function KYCVerso({ getRootProps, getInputProps, fieldConfig = de
   const [useCamera, setUseCamera] = useState(true);
   const [isCaptureReady, setIsCaptureReady] = useState(false);
   const webcamRef = useState<Webcam | null>(null)[0];
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   
   // Option d'upload de document activée ou non
   const allowUpload = fieldConfig.documentCapture.allowDocumentUpload;
@@ -22,6 +23,10 @@ export default function KYCVerso({ getRootProps, getInputProps, fieldConfig = de
   const handleCapture = () => {
     // Logic to capture the document would be implemented here
     setIsCaptureReady(true);
+  };
+
+  const flipCamera = () => {
+    setFacingMode(prevMode => (prevMode === "user" ? "environment" : "user"));
   };
 
   return (
@@ -37,11 +42,27 @@ export default function KYCVerso({ getRootProps, getInputProps, fieldConfig = de
               screenshotFormat="image/jpeg"
               className="w-full rounded-xl"
               onUserMedia={() => setIsCaptureReady(true)}
+              videoConstraints={{
+                facingMode: facingMode
+              }}
             />
             
             {/* Document frame overlay */}
             <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
               <div className="w-[90%] h-[60%] border-2 border-primary/70 rounded-md"></div>
+            </div>
+            
+            {/* Flip camera button */}
+            <div className="absolute top-4 right-4">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="flat"
+                className="bg-background/50 backdrop-blur-sm"
+                onClick={flipCamera}
+              >
+                <RotateCw className="w-4 h-4 text-white" />
+              </Button>
             </div>
             
             {/* Instructions overlay */}

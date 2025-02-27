@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Button } from "@nextui-org/react";
-import { Camera } from "lucide-react";
+import { Camera, RotateCw } from "lucide-react";
 import Webcam from "react-webcam";
 
 interface Props {
@@ -9,6 +10,12 @@ interface Props {
 }
 
 export default function KYBSelfie({ isCameraActive, handleCaptureSelfie, setIsCameraActive }: Props) {
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  
+  const flipCamera = () => {
+    setFacingMode(prevMode => (prevMode === "user" ? "environment" : "user"));
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-6 text-center">Selfie du représentant légal</h2>
@@ -18,7 +25,24 @@ export default function KYBSelfie({ isCameraActive, handleCaptureSelfie, setIsCa
             audio={false}
             screenshotFormat="image/jpeg"
             className="w-full rounded-xl"
+            videoConstraints={{
+              facingMode: facingMode
+            }}
           />
+          
+          {/* Flip camera button */}
+          <div className="absolute top-4 right-4">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="flat"
+              className="bg-background/50 backdrop-blur-sm"
+              onClick={flipCamera}
+            >
+              <RotateCw className="w-4 h-4 text-white" />
+            </Button>
+          </div>
+          
           <Button
             color="primary"
             variant="shadow"

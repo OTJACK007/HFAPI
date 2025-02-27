@@ -27,9 +27,17 @@ export interface KYCFieldConfig {
     license: boolean;   // Permis de conduire
   };
   
+  // Types de justificatifs de domicile disponibles
+  addressDocumentTypes: {
+    bill: boolean;          // Facture (électricité, eau, etc.)
+    certificate: boolean;   // Attestation de domicile
+    bankStatement: boolean; // Relevé bancaire
+  };
+  
   // Options de capture de documents
   documentCapture: {
-    allowDocumentUpload: boolean; // Permettre l'upload de document (vs uniquement capture caméra)
+    allowDocumentUpload: boolean;         // Permettre l'upload de document (vs uniquement capture caméra)
+    allowAddressDocumentUpload: boolean;  // Permettre l'upload de justificatif de domicile
   };
 }
 
@@ -55,8 +63,14 @@ export const defaultKYCFieldConfig: KYCFieldConfig = {
     residence: true,
     license: true
   },
+  addressDocumentTypes: {
+    bill: true,
+    certificate: true,
+    bankStatement: true
+  },
   documentCapture: {
-    allowDocumentUpload: true
+    allowDocumentUpload: true,
+    allowAddressDocumentUpload: true
   }
 };
 
@@ -82,8 +96,14 @@ export const minimalKYCFieldConfig: KYCFieldConfig = {
     residence: false,
     license: false
   },
+  addressDocumentTypes: {
+    bill: true,
+    certificate: false,
+    bankStatement: false
+  },
   documentCapture: {
-    allowDocumentUpload: false
+    allowDocumentUpload: false,
+    allowAddressDocumentUpload: false
   }
 };
 
@@ -108,7 +128,13 @@ export const standardKYCFieldConfig: KYCFieldConfig = {
     residence: true,
     license: false
   },
+  addressDocumentTypes: {
+    bill: true,
+    certificate: true,
+    bankStatement: true
+  },
   documentCapture: {
-    allowDocumentUpload: true
+    allowDocumentUpload: true,
+    allowAddressDocumentUpload: true
   }
 };

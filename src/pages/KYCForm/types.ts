@@ -15,6 +15,10 @@ export const formSchema = z.object({
     required_error: 'Veuillez sélectionner un type de document',
   }),
   documentNumber: z.string().min(5, 'Numéro de document invalide'),
+  // Type de justificatif de domicile
+  addressDocType: z.enum(['bill', 'certificate', 'bankStatement'], {
+    required_error: 'Veuillez sélectionner un type de justificatif de domicile',
+  }).optional(),
 });
 
 export type FormData = z.infer<typeof formSchema>;

@@ -25,6 +25,8 @@ import KYBIDNumber from './KYBForm/KYBIDNumber';
 import KYBMobile from './KYBForm/KYBMobile';
 import KYBSelfie from './KYBForm/KYBSelfie';
 import KYBLiveness from './KYBForm/KYBLiveness';
+import KYBSelectDocAddress from './KYBForm/KYBSelectDocAddress';
+import KYBProofAddress from './KYBForm/KYBProofAddress';
 
 // Vous pouvez importer ou définir dynamiquement votre configuration depuis votre API/base de données
 // Par exemple: const kybConfig = await fetchKYBConfigFromDatabase(); 
@@ -44,13 +46,15 @@ export default function KYBForm({
   const [documentFront, setDocumentFront] = useState<File | null>(null);
   const [documentBack, setDocumentBack] = useState<File | null>(null);
   const [businessDoc, setBusinessDoc] = useState<File | null>(null);
+  const [addressDoc, setAddressDoc] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
 
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      documentType: 'id'
+      documentType: 'id',
+      addressDocType: 'bill'
     }
   });
   
@@ -59,6 +63,12 @@ export default function KYBForm({
     control,
     name: 'documentType',
     defaultValue: 'id'
+  });
+  
+  const addressDocType = useWatch({
+    control,
+    name: 'addressDocType',
+    defaultValue: 'bill'
   });
   
   const email = watch('email', '');
@@ -77,6 +87,11 @@ export default function KYBForm({
   const { getRootProps: getBackProps, getInputProps: getBackInputProps } = useDropzone({
     accept: { 'image/*': [] },
     onDrop: files => setDocumentBack(files[0]),
+  });
+  
+  const { getRootProps: getAddressDocProps, getInputProps: getAddressDocInputProps } = useDropzone({
+    accept: { 'application/pdf': [], 'image/*': [] },
+    onDrop: files => setAddressDoc(files[0]),
   });
 
   const handleCaptureSelfie = () => {
@@ -162,6 +177,25 @@ export default function KYBForm({
           title="Document de l'entreprise"
           fieldConfig={fieldConfig}
         />;
+        
+      case 'addressDocSelection':
+        return <KYBSelectDocAddress 
+          register={register} 
+          errors={errors} 
+          fieldConfig={fieldConfig}
+          onNext={nextStep}
+          onBack={prevStep}
+        />;
+        
+      case 'addressDocCapture':
+        return <KYBProofAddress 
+          getRootProps={getAddressDocProps} 
+          getInputProps={getAddressDocInputProps}
+          onNext={nextStep}
+          onBack={prevStep}
+          fieldConfig={fieldConfig}
+          addressDocType={addressDocType}
+        />;
 
       case 'idDocSelection':
         return <KYBSelectDocType register={register} errors={errors} fieldConfig={fieldConfig} />;
@@ -198,6 +232,8 @@ export default function KYBForm({
         />;
 
       case 'mobileOption':
+        // Si on est sur mobile, cette étape ne devrait jamais s'afficher
+        // car elle est filtrée dans useKYBFlow
         return <KYBMobile onContinueOnDevice={nextStep} />;
 
       case 'selfieCapture':
@@ -224,6 +260,8 @@ export default function KYBForm({
       'phoneVerification',
       'businessDocType',
       'businessDocCapture',
+      'addressDocSelection',
+      'addressDocCapture',
       'idDocNumber',
       'idDocRectoCapture',
       'idDocVersoCapture',
