@@ -158,24 +158,28 @@ export const DocumentScanAnimation: React.FC<DocumentScanAnimationProps> = ({
           <div className="flex gap-3 pt-2">
             {(currentStep === 'complete' || currentStep === 'failed') && (
               <>
-                <Button
-                  variant="flat"
-                  color={isSuccess ? "default" : "danger"}
-                  className="flex-1"
-                  startContent={<RotateCcw className="w-4 h-4" />}
-                  onClick={onRetry}
-                >
-                  {isSuccess ? "Reprendre" : "Réessayer"}
-                </Button>
+                {!isSuccess && (
+                  <Button
+                    variant="flat"
+                    color="danger"
+                    className="flex-1"
+                    startContent={<RotateCcw className="w-4 h-4" />}
+                    onClick={onRetry}
+                  >
+                    Réessayer
+                  </Button>
+                )}
                 
-                <Button
-                  color={isSuccess ? "success" : "primary"}
-                  className="flex-1"
-                  endContent={<ChevronRight className="w-4 h-4" />}
-                  onClick={onContinue}
-                >
-                  {isSuccess ? "Continuer" : "Ignorer"}
-                </Button>
+                {isSuccess && (
+                  <Button
+                    color="success"
+                    className="flex-1"
+                    endContent={<ChevronRight className="w-4 h-4" />}
+                    onClick={onContinue}
+                  >
+                    Continuer
+                  </Button>
+                )}
               </>
             )}
           </div>
