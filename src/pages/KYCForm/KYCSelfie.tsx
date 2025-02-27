@@ -1,6 +1,9 @@
+import { useState, useRef } from "react";
 import { Button } from "@nextui-org/react";
 import { Camera } from "lucide-react";
 import Webcam from "react-webcam";
+import { useKYCFlow } from "../../hooks/useKYCFlow";
+import FullscreenCamera from "../../components/FullscreenCamera";
 
 interface Props {
   isCameraActive: boolean;
@@ -9,21 +12,48 @@ interface Props {
 }
 
 export default function KYCSelfie({ isCameraActive, handleCaptureSelfie, setIsCameraActive }: Props) {
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [isCaptureReady, setIsCaptureReady] = useState(false);
+  const webcamRef = useRef<Webcam>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  
+  const { nextStep } = useKYCFlow();
+  
+  const flipCamera = () => {
+    setFacingMode(prevMode => (prevMode === "user" ? "environment" : "user"));
+  };
+  
+  const handleCapture = (imageSrc: string) => {
+    setCapturedImage(imageSrc);
+    // Passer à l'étape suivante
+    nextStep();
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-6 text-center">Selfie</h2>
       {isCameraActive ? (
         <div className="relative rounded-xl overflow-hidden">
-          <Webcam
-            audio={false}
-            screenshotFormat="image/jpeg"
-            className="w-full rounded-xl"
+          <FullscreenCamera
+            webcamRef={webcamRef}
+            facingMode={facingMode}
+            onFlipCamera={flipCamera}
+            onCapture={handleCapture}
+            isCaptureReady={isCaptureReady}
+            frameText="Placez votre visage au centre du cadre"
           />
           <Button
             color="primary"
             variant="shadow"
             size="lg"
-            onClick={handleCaptureSelfie}
+            onClick={() => {
+              if (webcamRef.current) {
+                const imageSrc = webcamRef.current.getScreenshot();
+                if (imageSrc) {
+                  handleCapture(imageSrc);
+                }
+              }
+            }}
             className="mt-4 w-full"
           >
             Prendre la photo

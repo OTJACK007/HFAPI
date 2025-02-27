@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Button, Card, Progress } from "@nextui-org/react";
-import { Camera, AlertCircle, CheckCircle, ArrowRight } from "lucide-react";
+import { Camera, AlertCircle, CheckCircle, ArrowRight, RotateCw } from "lucide-react";
 import Webcam from "react-webcam";
+import FullscreenCamera from "../../components/FullscreenCamera";
 
 interface Props {
   onComplete: () => void;
@@ -13,12 +14,24 @@ export default function KYCLiveness({ onComplete }: Props) {
   const [progress, setProgress] = useState(0);
   const webcamRef = useRef<Webcam>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [isCaptureReady, setIsCaptureReady] = useState(false);
   
   const instructions = {
     center: "Placez votre visage au centre du cadre",
     left: "Tournez légèrement votre tête vers la gauche",
     right: "Tournez légèrement votre tête vers la droite",
     done: "Liveness détecté avec succès !"
+  };
+  
+  const flipCamera = () => {
+    setFacingMode(prevMode => (prevMode === "user" ? "environment" : "user"));
+  };
+  
+  // Cette fonction ne sera pas utilisée pour la capture d'image réelle
+  // mais est nécessaire pour le composant FullscreenCamera
+  const handleCapture = (imageSrc: string) => {
+    // Rien à faire ici, la capture est gérée par le processus de liveness
   };
 
   useEffect(() => {
@@ -82,11 +95,14 @@ export default function KYCLiveness({ onComplete }: Props) {
       {isCameraActive ? (
         <div className="space-y-4">
           <div className="relative mx-auto rounded-xl overflow-hidden">
-            <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              className="w-full rounded-xl"
+            <FullscreenCamera
+              webcamRef={webcamRef}
+              facingMode={facingMode}
+              onFlipCamera={flipCamera}
+              onCapture={handleCapture}
+              isCaptureReady={isCaptureReady}
+              frameText={instructions[currentStep]}
+              showFrame={false} // Pas de cadre rectangulaire, nous avons notre propre élément oval
             />
             
             {/* Face guide overlay */}

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@nextui-org/react";
 import { Camera, RotateCw } from "lucide-react";
 import Webcam from "react-webcam";
+import FullscreenCamera from "../../components/FullscreenCamera";
 
 interface Props {
   isCameraActive: boolean;
@@ -11,9 +12,18 @@ interface Props {
 
 export default function KYBSelfie({ isCameraActive, handleCaptureSelfie, setIsCameraActive }: Props) {
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [isCaptureReady, setIsCaptureReady] = useState(false);
+  const webcamRef = useRef<Webcam>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   
   const flipCamera = () => {
     setFacingMode(prevMode => (prevMode === "user" ? "environment" : "user"));
+  };
+  
+  const handleCapture = (imageSrc: string) => {
+    setCapturedImage(imageSrc);
+    // Passer à l'étape suivante via la prop
+    handleCaptureSelfie();
   };
 
   return (
@@ -21,33 +31,26 @@ export default function KYBSelfie({ isCameraActive, handleCaptureSelfie, setIsCa
       <h2 className="text-2xl font-bold mb-6 text-center">Selfie du représentant légal</h2>
       {isCameraActive ? (
         <div className="relative rounded-xl overflow-hidden">
-          <Webcam
-            audio={false}
-            screenshotFormat="image/jpeg"
-            className="w-full rounded-xl"
-            videoConstraints={{
-              facingMode: facingMode
-            }}
+          <FullscreenCamera
+            webcamRef={webcamRef}
+            facingMode={facingMode}
+            onFlipCamera={flipCamera}
+            onCapture={handleCapture}
+            isCaptureReady={isCaptureReady}
+            frameText="Placez votre visage au centre du cadre"
           />
-          
-          {/* Flip camera button */}
-          <div className="absolute top-4 right-4">
-            <Button
-              isIconOnly
-              size="sm"
-              variant="flat"
-              className="bg-background/50 backdrop-blur-sm"
-              onClick={flipCamera}
-            >
-              <RotateCw className="w-4 h-4 text-white" />
-            </Button>
-          </div>
-          
           <Button
             color="primary"
             variant="shadow"
             size="lg"
-            onClick={handleCaptureSelfie}
+            onClick={() => {
+              if (webcamRef.current) {
+                const imageSrc = webcamRef.current.getScreenshot();
+                if (imageSrc) {
+                  handleCapture(imageSrc);
+                }
+              }
+            }}
             className="mt-4 w-full"
           >
             Prendre la photo

@@ -5,6 +5,7 @@ import { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import Webcam from "react-webcam";
 import { KYBFieldConfig, defaultKYBFieldConfig } from "../../config/kybFields";
 import { DocumentScanAnimation } from "../../components/DocumentScanAnimation";
+import FullscreenCamera from "../../components/FullscreenCamera";
 
 interface Props {
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
@@ -31,12 +32,9 @@ export default function KYBVerso({
   // On utilise l'option pour les documents du représentant, pas de l'entreprise
   const allowUpload = fieldConfig.documentCapture.allowDocumentUpload;
 
-  const handleCapture = () => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
-      setCapturedImage(imageSrc);
-      setShowScanAnimation(true);
-    }
+  const handleCapture = (imageSrc: string) => {
+    setCapturedImage(imageSrc);
+    setShowScanAnimation(true);
   };
   
   const flipCamera = () => {
@@ -59,51 +57,14 @@ export default function KYBVerso({
       
       {useCamera ? (
         <div className="space-y-4">
-          <div className="relative rounded-xl overflow-hidden">
-            {!showScanAnimation && (
-              <Webcam
-                ref={webcamRef}
-                audio={false}
-                screenshotFormat="image/jpeg"
-                className="w-full rounded-xl"
-                onUserMedia={() => setIsCaptureReady(true)}
-                videoConstraints={{
-                  facingMode: facingMode
-                }}
-              />
-            )}
-            
-            {/* Document frame overlay */}
-            {!showScanAnimation && (
-              <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
-                <div className="w-[90%] h-[60%] border-2 border-primary/70 rounded-md"></div>
-              </div>
-            )}
-            
-            {/* Flip camera button */}
-            {!showScanAnimation && (
-              <div className="absolute top-4 right-4">
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="flat"
-                  className="bg-background/50 backdrop-blur-sm"
-                  onClick={flipCamera}
-                >
-                  <RotateCw className="w-4 h-4 text-white" />
-                </Button>
-              </div>
-            )}
-            
-            {/* Instructions overlay */}
-            {!showScanAnimation && (
-              <div className="absolute bottom-4 left-0 right-0 mx-auto w-[90%] bg-background/80 backdrop-blur-sm rounded-lg p-3">
-                <p className="text-sm text-white text-center">
-                  Alignez le verso de votre document dans le cadre
-                </p>
-              </div>
-            )}
-          </div>
+          <FullscreenCamera 
+            webcamRef={webcamRef}
+            facingMode={facingMode}
+            onFlipCamera={flipCamera}
+            onCapture={handleCapture}
+            isCaptureReady={isCaptureReady}
+            frameText="Alignez le verso de votre document dans le cadre"
+          />
           
           {!showScanAnimation && (
             <div className="flex gap-2">
@@ -111,7 +72,14 @@ export default function KYBVerso({
                 color="primary"
                 variant="shadow"
                 className="flex-1"
-                onClick={handleCapture}
+                onClick={() => {
+                  if (webcamRef.current) {
+                    const imageSrc = webcamRef.current.getScreenshot();
+                    if (imageSrc) {
+                      handleCapture(imageSrc);
+                    }
+                  }
+                }}
                 disabled={!isCaptureReady}
               >
                 Prendre la photo

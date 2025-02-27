@@ -5,6 +5,8 @@ import { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import Webcam from "react-webcam";
 import { KYCFieldConfig, defaultKYCFieldConfig } from "../../config/kycFields";
 import { DocumentScanAnimation } from "../../components/DocumentScanAnimation";
+import { useKYCFlow } from "../../hooks/useKYCFlow";
+import FullscreenCamera from "../../components/FullscreenCamera";
 
 interface Props {
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
@@ -26,6 +28,9 @@ export default function KYCProofAddress({
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [showScanAnimation, setShowScanAnimation] = useState(false);
   
+  // Accéder à la fonction nextStep du flux KYC
+  const { nextStep } = useKYCFlow();
+  
   // Option d'upload de document activée ou non
   const allowUpload = fieldConfig.documentCapture.allowAddressDocumentUpload;
 
@@ -39,12 +44,9 @@ export default function KYCProofAddress({
     }
   };
 
-  const handleCapture = () => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
-      setCapturedImage(imageSrc);
-      setShowScanAnimation(true);
-    }
+  const handleCapture = (imageSrc: string) => {
+    setCapturedImage(imageSrc);
+    setShowScanAnimation(true);
   };
   
   const flipCamera = () => {
@@ -58,8 +60,8 @@ export default function KYCProofAddress({
 
   const handleContinue = () => {
     setShowScanAnimation(false);
-    // Nous n'avons pas de méthode onNext ici, donc l'utilisateur pourra continuer
-    // en utilisant les boutons de navigation principaux du flux
+    // Passer à l'étape suivante dans le flux de vérification
+    nextStep();
   };
 
   return (
@@ -77,51 +79,14 @@ export default function KYCProofAddress({
       
       {useCamera ? (
         <div className="space-y-4">
-          <div className="relative rounded-xl overflow-hidden">
-            {!showScanAnimation && (
-              <Webcam
-                ref={webcamRef}
-                audio={false}
-                screenshotFormat="image/jpeg"
-                className="w-full rounded-xl"
-                onUserMedia={() => setIsCaptureReady(true)}
-                videoConstraints={{
-                  facingMode: facingMode
-                }}
-              />
-            )}
-            
-            {/* Document frame overlay */}
-            {!showScanAnimation && (
-              <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
-                <div className="w-[90%] h-[60%] border-2 border-primary/70 rounded-md"></div>
-              </div>
-            )}
-            
-            {/* Flip camera button */}
-            {!showScanAnimation && (
-              <div className="absolute top-4 right-4">
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="flat"
-                  className="bg-background/50 backdrop-blur-sm"
-                  onClick={flipCamera}
-                >
-                  <RotateCw className="w-4 h-4 text-white" />
-                </Button>
-              </div>
-            )}
-            
-            {/* Instructions overlay */}
-            {!showScanAnimation && (
-              <div className="absolute bottom-4 left-0 right-0 mx-auto w-[90%] bg-background/80 backdrop-blur-sm rounded-lg p-3">
-                <p className="text-sm text-white text-center">
-                  Alignez votre document dans le cadre et assurez-vous qu'il est lisible
-                </p>
-              </div>
-            )}
-          </div>
+          <FullscreenCamera 
+            webcamRef={webcamRef}
+            facingMode={facingMode}
+            onFlipCamera={flipCamera}
+            onCapture={handleCapture}
+            isCaptureReady={isCaptureReady}
+            frameText="Alignez votre document dans le cadre et assurez-vous qu'il est lisible"
+          />
           
           {!showScanAnimation && (
             <div className="flex gap-2">
@@ -129,7 +94,14 @@ export default function KYCProofAddress({
                 color="primary"
                 variant="shadow"
                 className="flex-1"
-                onClick={handleCapture}
+                onClick={() => {
+                  if (webcamRef.current) {
+                    const imageSrc = webcamRef.current.getScreenshot();
+                    if (imageSrc) {
+                      handleCapture(imageSrc);
+                    }
+                  }
+                }}
                 disabled={!isCaptureReady}
               >
                 Prendre la photo
