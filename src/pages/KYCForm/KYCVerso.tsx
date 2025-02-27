@@ -42,10 +42,15 @@ export default function KYCVerso({ getRootProps, getInputProps, fieldConfig = de
     setShowScanAnimation(false);
   };
 
+  // Cette fonction sera appelée après validation du document
   const handleContinue = () => {
+    console.log("KYCVerso: Continue à la prochaine étape");
     setShowScanAnimation(false);
-    // Passer à l'étape suivante dans le flux de vérification
-    nextStep();
+    
+    // Assurons-nous que nextStep est appelé avec un délai pour éviter les problèmes de rendu React
+    setTimeout(() => {
+      nextStep();
+    }, 10);
   };
 
   return (

@@ -77,6 +77,14 @@ export const DocumentScanAnimation: React.FC<DocumentScanAnimationProps> = ({
     }
   }, [currentStep]);
 
+  // Fonction sécurisée pour la navigation
+  const handleContinue = () => {
+    // Assurons-nous que nous appelons onContinue seulement si c'est un succès
+    if (isSuccess) {
+      onContinue();
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-background/90 border border-white/20">
@@ -175,7 +183,7 @@ export const DocumentScanAnimation: React.FC<DocumentScanAnimationProps> = ({
                     color="success"
                     className="flex-1"
                     endContent={<ChevronRight className="w-4 h-4" />}
-                    onClick={onContinue}
+                    onClick={handleContinue}
                   >
                     Continuer
                   </Button>
