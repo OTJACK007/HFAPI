@@ -42,15 +42,10 @@ export default function KYCRecto({ getRootProps, getInputProps, fieldConfig = de
     setShowScanAnimation(false);
   };
 
-  // Cette fonction sera appelée après validation du document
   const handleContinue = () => {
-    console.log("KYCRecto: Continue à la prochaine étape");
     setShowScanAnimation(false);
-    
-    // Assurons-nous que nextStep est appelé avec un délai pour éviter les problèmes de rendu React
-    setTimeout(() => {
-      nextStep();
-    }, 10);
+    // Passer à l'étape suivante (verso du document)
+    nextStep();
   };
 
   return (
