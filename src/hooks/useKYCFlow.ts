@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { KYCStepConfig, defaultKYCConfig, getActiveKYCSteps } from '../config/kycSteps';
+import { useIsMobile } from './useIsMobile';
 
 interface KYCStep {
   id: string;
@@ -11,16 +12,30 @@ export function useKYCFlow(config: KYCStepConfig = defaultKYCConfig) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [activeSteps, setActiveSteps] = useState<KYCStep[]>([]);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Initialiser les étapes actives en fonction de la configuration
   useEffect(() => {
     const steps = getActiveKYCSteps(config);
-    const mappedSteps = steps.map((step, index) => ({
+    
+    // Filtrer l'étape mobile si l'utilisateur est sur un appareil mobile
+    const filteredSteps = isMobile 
+      ? steps.filter(step => step !== 'mobileOption') 
+      : steps;
+    
+    const mappedSteps = filteredSteps.map((step, index) => ({
       id: step,
       index: index + 1
     }));
+    
     setActiveSteps(mappedSteps);
-  }, [config]);
+    
+    // Si l'utilisateur était sur l'étape mobile et qu'on la supprime,
+    // il faut s'assurer que l'index courant est valide
+    if (isMobile && currentStepIndex >= mappedSteps.length) {
+      setCurrentStepIndex(Math.max(0, mappedSteps.length - 1));
+    }
+  }, [config, isMobile]);
   
   // Trouver l'étape actuelle
   const currentStep = activeSteps.length > 0 ? activeSteps[currentStepIndex] : null;
@@ -72,6 +87,7 @@ export function useKYCFlow(config: KYCStepConfig = defaultKYCConfig) {
     prevStep,
     goToStep,
     isStepActive,
-    activeSteps
+    activeSteps,
+    isMobile
   };
 }

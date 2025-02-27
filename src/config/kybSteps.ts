@@ -24,7 +24,7 @@ export interface KYBStepConfig {
   idDocVersoCapture: boolean;
   
   // Vérification biométrique
-  mobileOption: boolean;
+  mobileOption: boolean; // Cette étape est toujours activée dans la config, mais sera sautée automatiquement sur mobile
   selfieCapture: boolean;
   livenessDetection: boolean;
 }
@@ -42,7 +42,7 @@ export const defaultKYBConfig: KYBStepConfig = {
   idDocNumber: true,
   idDocRectoCapture: true,
   idDocVersoCapture: true,
-  mobileOption: true,
+  mobileOption: true, // Obligatoire dans la configuration, mais sera ignoré sur mobile
   selfieCapture: true,
   livenessDetection: true
 };
@@ -62,7 +62,7 @@ export function getActiveKYBSteps(config: KYBStepConfig = defaultKYBConfig): str
   if (config.idDocNumber) steps.push('idDocNumber');
   if (config.idDocRectoCapture) steps.push('idDocRectoCapture');
   if (config.idDocVersoCapture) steps.push('idDocVersoCapture');
-  if (config.mobileOption) steps.push('mobileOption');
+  if (config.mobileOption) steps.push('mobileOption'); // Toujours inclus dans les étapes actives selon la config
   if (config.selfieCapture) steps.push('selfieCapture');
   if (config.livenessDetection) steps.push('livenessDetection');
   
@@ -82,7 +82,7 @@ export const minimalKYBConfig: KYBStepConfig = {
   idDocNumber: true,
   idDocRectoCapture: true,
   idDocVersoCapture: false,
-  mobileOption: false,
+  mobileOption: true, // Toujours obligatoire dans la config
   selfieCapture: false,
   livenessDetection: false
 };
@@ -99,7 +99,7 @@ export const standardKYBConfig: KYBStepConfig = {
   idDocNumber: true,
   idDocRectoCapture: true,
   idDocVersoCapture: true,
-  mobileOption: true,
+  mobileOption: true, // Toujours obligatoire dans la config
   selfieCapture: true,
   livenessDetection: false
 };

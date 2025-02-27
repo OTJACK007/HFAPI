@@ -94,7 +94,8 @@ export default function KYBForm({
     totalSteps, 
     nextStep, 
     prevStep,
-    activeSteps 
+    activeSteps,
+    isMobile
   } = useKYBFlow(stepConfig);
 
   const [step, setStep] = useState(1);

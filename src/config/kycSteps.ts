@@ -17,7 +17,7 @@ export interface KYCStepConfig {
   documentVersoCapture: boolean;
   
   // Vérification biométrique
-  mobileOption: boolean;
+  mobileOption: boolean; // Cette étape est toujours activée dans la config, mais sera sautée automatiquement sur mobile
   selfieCapture: boolean;
   livenessDetection: boolean;
 }
@@ -32,7 +32,7 @@ export const defaultKYCConfig: KYCStepConfig = {
   documentIdNumber: true,
   documentRectoCapture: true,
   documentVersoCapture: true,
-  mobileOption: true,
+  mobileOption: true, // Obligatoire dans la configuration, mais sera ignoré sur mobile
   selfieCapture: true,
   livenessDetection: true
 };
@@ -49,7 +49,7 @@ export function getActiveKYCSteps(config: KYCStepConfig = defaultKYCConfig): str
   if (config.documentIdNumber) steps.push('documentIdNumber');
   if (config.documentRectoCapture) steps.push('documentRectoCapture');
   if (config.documentVersoCapture) steps.push('documentVersoCapture');
-  if (config.mobileOption) steps.push('mobileOption');
+  if (config.mobileOption) steps.push('mobileOption'); // Toujours inclus dans les étapes actives selon la config
   if (config.selfieCapture) steps.push('selfieCapture');
   if (config.livenessDetection) steps.push('livenessDetection');
   
@@ -66,7 +66,7 @@ export const minimalKYCConfig: KYCStepConfig = {
   documentIdNumber: true,
   documentRectoCapture: true,
   documentVersoCapture: false,
-  mobileOption: false,
+  mobileOption: true, // Toujours obligatoire dans la config
   selfieCapture: false,
   livenessDetection: false
 };
@@ -80,7 +80,7 @@ export const standardKYCConfig: KYCStepConfig = {
   documentIdNumber: true,
   documentRectoCapture: true,
   documentVersoCapture: true,
-  mobileOption: true, 
+  mobileOption: true, // Toujours obligatoire dans la config
   selfieCapture: true,
   livenessDetection: false
 };

@@ -86,7 +86,8 @@ export default function KYCForm({
     totalSteps, 
     nextStep, 
     prevStep,
-    activeSteps 
+    activeSteps,
+    isMobile
   } = useKYCFlow(stepConfig);
 
   const [step, setStep] = useState(1);
