@@ -3,18 +3,29 @@ import { Card, CardBody, Button } from "@nextui-org/react";
 import { Upload, Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import Webcam from "react-webcam";
+import { KYBFieldConfig, defaultKYBFieldConfig } from "../../config/kybFields";
 
 interface Props {
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T) => T;
   onNext: () => void;
   onBack: () => void;
+  fieldConfig?: KYBFieldConfig;
 }
 
-export default function KYBVerso({ getRootProps, getInputProps, onNext, onBack }: Props) {
+export default function KYBVerso({ 
+  getRootProps, 
+  getInputProps, 
+  onNext, 
+  onBack,
+  fieldConfig = defaultKYBFieldConfig
+}: Props) {
   const [useCamera, setUseCamera] = useState(true);
   const [isCaptureReady, setIsCaptureReady] = useState(false);
   const webcamRef = useState<Webcam | null>(null)[0];
+  
+  // On utilise l'option pour les documents du représentant, pas de l'entreprise
+  const allowUpload = fieldConfig.documentCapture.allowDocumentUpload;
 
   const handleCapture = () => {
     // Logic to capture the document would be implemented here
@@ -61,13 +72,15 @@ export default function KYBVerso({ getRootProps, getInputProps, onNext, onBack }
               Prendre la photo
             </Button>
             
-            <Button
-              variant="flat"
-              className="bg-background/40"
-              onClick={() => setUseCamera(false)}
-            >
-              <Upload className="w-5 h-5 text-primary" />
-            </Button>
+            {allowUpload && (
+              <Button
+                variant="flat"
+                className="bg-background/40"
+                onClick={() => setUseCamera(false)}
+              >
+                <Upload className="w-5 h-5 text-primary" />
+              </Button>
+            )}
           </div>
         </div>
       ) : (

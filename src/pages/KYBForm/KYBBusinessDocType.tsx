@@ -3,15 +3,36 @@ import { Button } from "@nextui-org/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormData } from "./types";
+import { KYBFieldConfig, defaultKYBFieldConfig } from "../../config/kybFields";
+
+interface DocumentOption {
+  key: string;
+  value: string;
+  label: string;
+}
 
 interface Props {
   register: UseFormRegister<FormData>;
   errors: FieldErrors<FormData>;
   onNext: () => void;
   onBack: () => void;
+  fieldConfig?: KYBFieldConfig;
 }
 
-export default function KYBBusinessDocType({ register, errors, onNext, onBack }: Props) {
+export default function KYBBusinessDocType({ register, errors, onNext, onBack, fieldConfig = defaultKYBFieldConfig }: Props) {
+  // Liste complète des types de documents d'entreprise
+  const allDocumentOptions: DocumentOption[] = [
+    { key: "kbis", value: "kbis", label: "Extrait Kbis" },
+    { key: "registration", value: "registration", label: "Certificat d'immatriculation" },
+    { key: "articles", value: "articles", label: "Statuts de l'entreprise" },
+    { key: "tax", value: "tax", label: "Attestation fiscale" }
+  ];
+
+  // Filtrer les options en fonction de la configuration
+  const availableDocuments = allDocumentOptions.filter(doc => 
+    fieldConfig.businessDocTypes[doc.key as keyof typeof fieldConfig.businessDocTypes]
+  );
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-6 text-center">Documents de l'entreprise</h2>
@@ -29,34 +50,15 @@ export default function KYBBusinessDocType({ register, errors, onNext, onBack }:
           popover: "bg-background border-small border-white/10 rounded-lg",
         }}
       >
-        <SelectItem 
-          key="kbis" 
-          value="kbis"
-          className="text-white data-[hover=true]:bg-white/10"
-        >
-          Extrait Kbis
-        </SelectItem>
-        <SelectItem 
-          key="registration" 
-          value="registration"
-          className="text-white data-[hover=true]:bg-white/10"
-        >
-          Certificat d'immatriculation
-        </SelectItem>
-        <SelectItem 
-          key="articles" 
-          value="articles"
-          className="text-white data-[hover=true]:bg-white/10"
-        >
-          Statuts de l'entreprise
-        </SelectItem>
-        <SelectItem 
-          key="tax" 
-          value="tax"
-          className="text-white data-[hover=true]:bg-white/10"
-        >
-          Attestation fiscale
-        </SelectItem>
+        {availableDocuments.map((doc) => (
+          <SelectItem 
+            key={doc.key} 
+            value={doc.value}
+            className="text-white data-[hover=true]:bg-white/10"
+          >
+            {doc.label}
+          </SelectItem>
+        ))}
       </Select>
 
       <div className="mt-4 p-4 bg-background/40 border border-white/10 rounded-lg">

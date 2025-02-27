@@ -1,13 +1,34 @@
 import { Select, SelectItem } from "@nextui-org/react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormData } from "./types";
+import { KYBFieldConfig, defaultKYBFieldConfig } from "../../config/kybFields";
+
+interface DocumentOption {
+  key: string;
+  value: string;
+  label: string;
+}
 
 interface Props {
   register: UseFormRegister<FormData>;
   errors: FieldErrors<FormData>;
+  fieldConfig?: KYBFieldConfig;
 }
 
-export default function KYBSelectDocType({ register, errors }: Props) {
+export default function KYBSelectDocType({ register, errors, fieldConfig = defaultKYBFieldConfig }: Props) {
+  // Liste complète des types de documents
+  const allDocumentOptions: DocumentOption[] = [
+    { key: "id", value: "id", label: "Carte d'identité" },
+    { key: "passport", value: "passport", label: "Passeport" },
+    { key: "residence", value: "residence", label: "Titre de séjour" },
+    { key: "license", value: "license", label: "Permis de conduire" }
+  ];
+
+  // Filtrer les options en fonction de la configuration
+  const availableDocuments = allDocumentOptions.filter(doc => 
+    fieldConfig.representativeDocTypes[doc.key as keyof typeof fieldConfig.representativeDocTypes]
+  );
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-6 text-center">Document d'identité du représentant</h2>
@@ -25,34 +46,15 @@ export default function KYBSelectDocType({ register, errors }: Props) {
           popover: "bg-background border-small border-white/10 rounded-lg",
         }}
       >
-        <SelectItem 
-          key="id" 
-          value="id"
-          className="text-white data-[hover=true]:bg-white/10"
-        >
-          Carte d'identité
-        </SelectItem>
-        <SelectItem 
-          key="passport" 
-          value="passport"
-          className="text-white data-[hover=true]:bg-white/10"
-        >
-          Passeport
-        </SelectItem>
-        <SelectItem 
-          key="residence" 
-          value="residence"
-          className="text-white data-[hover=true]:bg-white/10"
-        >
-          Titre de séjour
-        </SelectItem>
-        <SelectItem 
-          key="license" 
-          value="license"
-          className="text-white data-[hover=true]:bg-white/10"
-        >
-          Permis de conduire
-        </SelectItem>
+        {availableDocuments.map((doc) => (
+          <SelectItem 
+            key={doc.key} 
+            value={doc.value}
+            className="text-white data-[hover=true]:bg-white/10"
+          >
+            {doc.label}
+          </SelectItem>
+        ))}
       </Select>
 
       <div className="mt-4 p-4 bg-background/40 border border-white/10 rounded-lg">

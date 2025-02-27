@@ -1,35 +1,68 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Card, CardBody, Progress } from '@nextui-org/react';
+import { Button, Input, Select, SelectItem, Card, CardBody, Progress } from '@nextui-org/react';
 import { useDropzone } from 'react-dropzone';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { FormData, formSchema } from './KYBForm/types';
+import { KYBStepConfig, defaultKYBConfig } from '../config/kybSteps';
+import { KYBFieldConfig, defaultKYBFieldConfig } from '../config/kybFields';
+import { KYBThemeConfig, defaultKYBTheme } from '../config/KYBTheme';
+import { useKYBFlow } from '../hooks/useKYBFlow';
+import { KYBThemeWrapper } from '../components/ThemeWrapper';
 
 import KYBCompanyInfo from './KYBForm/KYBCompanyInfo';
 import KYBRepresentativeInfo from './KYBForm/KYBRepresentativeInfo';
+import KYBEmailOTP from './KYBForm/KYBEmailOTP';
+import KYBPhoneOTP from './KYBForm/KYBPhoneOTP';
 import KYBAddress from './KYBForm/KYBAddress';
 import KYBBusinessDocType from './KYBForm/KYBBusinessDocType';
 import KYBRecto from './KYBForm/KYBRecto';
 import KYBVerso from './KYBForm/KYBVerso';
 import KYBSelectDocType from './KYBForm/KYBSelectDocType';
+import KYBIDNumber from './KYBForm/KYBIDNumber';
 import KYBMobile from './KYBForm/KYBMobile';
 import KYBSelfie from './KYBForm/KYBSelfie';
 import KYBLiveness from './KYBForm/KYBLiveness';
 
-export default function KYBForm() {
+// Vous pouvez importer ou définir dynamiquement votre configuration depuis votre API/base de données
+// Par exemple: const kybConfig = await fetchKYBConfigFromDatabase(); 
+
+interface KYBFormProps {
+  stepConfig?: KYBStepConfig;
+  fieldConfig?: KYBFieldConfig;
+  themeConfig?: KYBThemeConfig;
+}
+
+export default function KYBForm({ 
+  stepConfig = defaultKYBConfig,
+  fieldConfig = defaultKYBFieldConfig,
+  themeConfig = defaultKYBTheme
+}: KYBFormProps) {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
   const [documentFront, setDocumentFront] = useState<File | null>(null);
   const [documentBack, setDocumentBack] = useState<File | null>(null);
   const [businessDoc, setBusinessDoc] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
 
-  const { register, formState: { errors } } = useForm<FormData>({
+  const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      documentType: 'id'
+    }
   });
+  
+  const { register, control, formState: { errors }, watch } = methods;
+  const documentType = useWatch({
+    control,
+    name: 'documentType',
+    defaultValue: 'id'
+  });
+  
+  const email = watch('email', '');
+  const phone = watch('phone', '');
 
   const { getRootProps: getBusinessDocProps, getInputProps: getBusinessDocInputProps } = useDropzone({
     accept: { 'application/pdf': [], 'image/*': [] },
@@ -52,63 +85,121 @@ export default function KYBForm() {
       return;
     }
     // Logic to capture selfie will be implemented here
-    setStep(step + 1);
+    nextStep();
   };
 
-  const handleNextStep = () => {
-    if (step < 9) {
-      setStep(step + 1);
-    } else {
-      navigate('/verifying');
+  const { 
+    currentStep, 
+    currentStepIndex, 
+    totalSteps, 
+    nextStep, 
+    prevStep,
+    activeSteps 
+  } = useKYBFlow(stepConfig);
+
+  const [step, setStep] = useState(1);
+
+  // Synchroniser l'état du step avec le gestionnaire de flow
+  useEffect(() => {
+    if (currentStep) {
+      setStep(currentStep.index);
     }
-  };
+  }, [currentStep]);
 
   const handleLivenessComplete = () => {
     navigate('/verifying');
   };
 
   const renderStep = () => {
-    switch (step) {
-      case 1:
-        return <KYBCompanyInfo register={register} errors={errors} />;
+    switch (currentStep?.id) {
+      case 'companyInfo':
+        return <KYBCompanyInfo register={register} errors={errors} fieldConfig={fieldConfig} />;
 
-      case 2:
-        return <KYBRepresentativeInfo register={register} errors={errors} />;
+      case 'representativeInfo':
+        return <KYBRepresentativeInfo register={register} errors={errors} fieldConfig={fieldConfig} />;
+        
+      case 'emailVerification':
+        return (
+          <KYBEmailOTP 
+            register={register} 
+            errors={errors} 
+            email={email}
+            onVerified={nextStep}
+            onBack={prevStep}
+          />
+        );
+        
+      case 'phoneVerification':
+        return (
+          <KYBPhoneOTP 
+            register={register} 
+            errors={errors} 
+            phone={phone}
+            onVerified={nextStep}
+            onBack={prevStep}
+          />
+        );
 
-      case 3:
-        return <KYBAddress register={register} errors={errors} />;
+      case 'addressInfo':
+        return <KYBAddress register={register} errors={errors} fieldConfig={fieldConfig} />;
 
-      case 4:
+      case 'businessDocType':
         return <KYBBusinessDocType 
           register={register} 
           errors={errors}
-          onNext={handleNextStep}
-          onBack={() => setStep(step - 1)}
+          onNext={nextStep}
+          onBack={prevStep}
+          fieldConfig={fieldConfig}
         />;
 
-      case 5:
+      case 'businessDocCapture':
         return <KYBRecto 
           getRootProps={getBusinessDocProps} 
           getInputProps={getBusinessDocInputProps}
-          onNext={handleNextStep}
-          onBack={() => setStep(step - 1)}
+          onNext={nextStep}
+          onBack={prevStep}
+          title="Document de l'entreprise"
+          fieldConfig={fieldConfig}
         />;
 
-      case 6:
-        return <KYBSelectDocType register={register} errors={errors} />;
+      case 'idDocSelection':
+        return <KYBSelectDocType register={register} errors={errors} fieldConfig={fieldConfig} />;
+        
+      case 'idDocNumber':
+        return (
+          <KYBIDNumber 
+            register={register} 
+            control={control}
+            errors={errors}
+            documentType={documentType}
+            onNext={nextStep}
+            onBack={prevStep}
+          />
+        );
 
-      case 7:
+      case 'idDocRectoCapture':
         return <KYBRecto 
           getRootProps={getFrontProps} 
           getInputProps={getFrontInputProps}
-          onNext={handleNextStep}
-          onBack={() => setStep(step - 1)}
+          onNext={nextStep}
+          onBack={prevStep}
+          title="Document recto d'identité"
+          fieldConfig={fieldConfig}
+        />;
+        
+      case 'idDocVersoCapture':
+        return <KYBVerso
+          getRootProps={getBackProps} 
+          getInputProps={getBackInputProps}
+          onNext={nextStep}
+          onBack={prevStep}
+          fieldConfig={fieldConfig}
         />;
 
-      case 8:
-        return <KYBMobile onContinueOnDevice={() => setStep(step + 1)} />;
+      case 'mobileOption':
+        return <KYBMobile onContinueOnDevice={nextStep} />;
 
-      case 9:
+      case 'selfieCapture':
         return (
           <KYBSelfie
             isCameraActive={isCameraActive}
@@ -117,91 +208,109 @@ export default function KYBForm() {
           />
         );
         
-      case 10:
+      case 'livenessDetection':
         return <KYBLiveness onComplete={handleLivenessComplete} />;
 
       default:
-        return null;
+        return <div>Étape non configurée</div>;
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-radial from-primary/20 via-background to-background" />
-      
-      {/* Header with Progress */}
-      <div className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm z-50">
-        <div className="max-w-md mx-auto px-4 py-4">
-          <div className="flex justify-center mb-4">
-            <img
-              src="https://rfpjrfuuupsnlehsmhfo.supabase.co/storage/v1/object/public/myfile/logo%20brands/newHlogoHumanface%20(1).png"
-              alt="HumanFace Logo"
-              className="h-8"
-            />
-          </div>
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-lg font-semibold">Vérification d'entreprise</h1>
-            <span className="text-sm text-primary">
-              {step}/10
-            </span>
-          </div>
-          <Progress 
-            value={(step / 10) * 100}
-            className="h-1"
-            color="primary"
-          />
-        </div>
-      </div>
+  // Déterminer si les boutons de navigation doivent être affichés
+  const showNavButtons = () => {
+    const noButtonSteps = [
+      'emailVerification', 
+      'phoneVerification',
+      'businessDocType',
+      'businessDocCapture',
+      'idDocNumber',
+      'idDocRectoCapture',
+      'idDocVersoCapture',
+      'mobileOption',
+      'livenessDetection'
+    ];
+    return !noButtonSteps.includes(currentStep?.id || '');
+  };
 
-      {/* Main Content */}
-      <div className="relative z-10 pt-24 pb-24 px-4">
-        <div className="max-w-md mx-auto">
-          <Card className="bg-background/40 border border-white/10">
-            <CardBody className="p-6">
-              <div className="space-y-8">
-                {renderStep()}
-                
-                {step < 8 && step !== 4 && step !== 5 && step !== 7 && (
-                  <div className="flex gap-2 pt-4">
-                    {step > 1 && step !== 7 && (
-                      <Button
-                        type="button"
-                        variant="bordered"
-                        onClick={() => setStep(step - 1)}
-                        startContent={<ChevronLeft size={20} />}
-                        className="flex-1 text-white"
-                      >
-                        Retour
-                      </Button>
-                    )}
-                    {step !== 7 && (
-                      <Button
-                        onClick={handleNextStep}
-                        color="primary"
-                        className={`flex-1 text-white ${step === 1 ? 'w-full' : ''}`}
-                        endContent={step < 8 && <ChevronRight size={20} />}
-                      >
-                        {step === 9 ? 'Terminer' : 'Continuer'}
-                      </Button>
-                    )}
-                  </div>
-                )}
-                <div className="flex flex-col items-center gap-2 mt-8 pt-6 border-t border-white/10">
-                  <img
-                    src="https://rfpjrfuuupsnlehsmhfo.supabase.co/storage/v1/object/public/myfile/logo%20brands/LogoHumanfaceCarre.png"
-                    alt="HumanFace Logo"
-                    className="w-8 h-8"
-                  />
-                  <p className="text-xs text-gray-500">
-                    powered by <a href="https://humanface.xyz" className="hover:text-primary transition-colors">humanface.xyz</a>
-                  </p>
-                </div>
+  return (
+    <KYBThemeWrapper>
+      <FormProvider {...methods}>
+        <div className="min-h-screen bg-background relative overflow-hidden">
+          {/* Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-radial from-primary/20 via-background to-background" />
+          
+          {/* Header with Progress */}
+          <div className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm z-50">
+            <div className="max-w-md mx-auto px-4 py-4">
+              <div className="flex justify-center mb-4">
+                <img
+                  src="https://rfpjrfuuupsnlehsmhfo.supabase.co/storage/v1/object/public/myfile/logo%20brands/newHlogoHumanface%20(1).png"
+                  alt="HumanFace Logo"
+                  className="h-8"
+                />
               </div>
-            </CardBody>
-          </Card>
+              <div className="flex items-center justify-between mb-2">
+                <h1 className="text-lg font-semibold">Vérification d'entreprise</h1>
+                <span className="text-sm text-primary">
+                  {currentStepIndex + 1}/{totalSteps}
+                </span>
+              </div>
+              <Progress 
+                value={((currentStepIndex + 1) / totalSteps) * 100}
+                className="h-1"
+                color="primary"
+              />
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="relative z-10 pt-24 pb-24 px-4">
+            <div className="max-w-md mx-auto">
+              <Card className="bg-background/40 border border-white/10">
+                <CardBody className="p-6">
+                  <div className="space-y-8">
+                    {renderStep()}
+                    
+                    {showNavButtons() && (
+                      <div className="flex gap-2 pt-4">
+                        {currentStepIndex > 0 && (
+                          <Button
+                            type="button"
+                            variant="bordered"
+                            onClick={prevStep}
+                            startContent={<ChevronLeft size={20} />}
+                            className="flex-1 text-white"
+                          >
+                            Retour
+                          </Button>
+                        )}
+                        <Button
+                          onClick={nextStep}
+                          color="primary"
+                          className={`flex-1 text-white ${currentStepIndex === 0 ? 'w-full' : ''}`}
+                          endContent={<ChevronRight size={20} />}
+                        >
+                          Continuer
+                        </Button>
+                      </div>
+                    )}
+                    <div className="flex flex-col items-center gap-2 mt-8 pt-6 border-t border-white/10">
+                      <img
+                        src="https://rfpjrfuuupsnlehsmhfo.supabase.co/storage/v1/object/public/myfile/logo%20brands/LogoHumanfaceCarre.png"
+                        alt="HumanFace Logo"
+                        className="w-8 h-8"
+                      />
+                      <p className="text-xs text-gray-500">
+                        powered by <a href="https://humanface.xyz" className="hover:text-primary transition-colors">humanface.xyz</a>
+                      </p>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </FormProvider>
+    </KYBThemeWrapper>
   );
 }

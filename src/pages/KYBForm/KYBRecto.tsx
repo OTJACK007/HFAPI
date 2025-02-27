@@ -3,18 +3,34 @@ import { Card, CardBody, Button } from "@nextui-org/react";
 import { Upload, Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import Webcam from "react-webcam";
+import { KYBFieldConfig, defaultKYBFieldConfig } from "../../config/kybFields";
 
 interface Props {
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T) => T;
   onNext: () => void;
   onBack: () => void;
+  title?: string;
+  fieldConfig?: KYBFieldConfig;
 }
 
-export default function KYBRecto({ getRootProps, getInputProps, onNext, onBack }: Props) {
+export default function KYBRecto({ 
+  getRootProps, 
+  getInputProps, 
+  onNext, 
+  onBack, 
+  title = "Document de l'entreprise",
+  fieldConfig = defaultKYBFieldConfig
+}: Props) {
   const [useCamera, setUseCamera] = useState(true);
   const [isCaptureReady, setIsCaptureReady] = useState(false);
   const webcamRef = useState<Webcam | null>(null)[0];
+  
+  // Déterminer quelle option d'upload utiliser selon le type de document
+  const isCompanyDocument = title.includes("entreprise");
+  const allowUpload = isCompanyDocument 
+    ? fieldConfig.documentCapture.allowCompanyDocumentUpload 
+    : fieldConfig.documentCapture.allowDocumentUpload;
 
   const handleCapture = () => {
     // Logic to capture the document would be implemented here
@@ -24,7 +40,7 @@ export default function KYBRecto({ getRootProps, getInputProps, onNext, onBack }
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold mb-6 text-center">Document de l'entreprise</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">{title}</h2>
       
       {useCamera ? (
         <div className="space-y-4">
@@ -61,13 +77,15 @@ export default function KYBRecto({ getRootProps, getInputProps, onNext, onBack }
               Prendre la photo
             </Button>
             
-            <Button
-              variant="flat"
-              className="bg-background/40"
-              onClick={() => setUseCamera(false)}
-            >
-              <Upload className="w-5 h-5 text-primary" />
-            </Button>
+            {allowUpload && (
+              <Button
+                variant="flat"
+                className="bg-background/40"
+                onClick={() => setUseCamera(false)}
+              >
+                <Upload className="w-5 h-5 text-primary" />
+              </Button>
+            )}
           </div>
         </div>
       ) : (

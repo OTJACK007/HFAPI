@@ -3,16 +3,21 @@ import { Card, CardBody, Button } from "@nextui-org/react";
 import { Upload, Camera } from "lucide-react";
 import { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import Webcam from "react-webcam";
+import { KYCFieldConfig, defaultKYCFieldConfig } from "../../config/kycFields";
 
 interface Props {
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T) => T;
+  fieldConfig?: KYCFieldConfig;
 }
 
-export default function KYCVerso({ getRootProps, getInputProps }: Props) {
+export default function KYCVerso({ getRootProps, getInputProps, fieldConfig = defaultKYCFieldConfig }: Props) {
   const [useCamera, setUseCamera] = useState(true);
   const [isCaptureReady, setIsCaptureReady] = useState(false);
   const webcamRef = useState<Webcam | null>(null)[0];
+  
+  // Option d'upload de document activée ou non
+  const allowUpload = fieldConfig.documentCapture.allowDocumentUpload;
 
   const handleCapture = () => {
     // Logic to capture the document would be implemented here
@@ -58,13 +63,15 @@ export default function KYCVerso({ getRootProps, getInputProps }: Props) {
               Prendre la photo
             </Button>
             
-            <Button
-              variant="flat"
-              className="bg-background/40"
-              onClick={() => setUseCamera(false)}
-            >
-              <Upload className="w-5 h-5 text-primary" />
-            </Button>
+            {allowUpload && (
+              <Button
+                variant="flat"
+                className="bg-background/40"
+                onClick={() => setUseCamera(false)}
+              >
+                <Upload className="w-5 h-5 text-primary" />
+              </Button>
+            )}
           </div>
         </div>
       ) : (

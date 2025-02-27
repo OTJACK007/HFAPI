@@ -3,21 +3,27 @@ import { Input, Select, SelectItem } from "@nextui-org/react";
 import countryList from "react-select-country-list";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormData } from "./types";
+import { KYCFieldConfig, defaultKYCFieldConfig } from "../../config/kycFields";
 
 interface Props {
   register: UseFormRegister<FormData>;
   errors: FieldErrors<FormData>;
+  fieldConfig?: KYCFieldConfig;
 }
 
-export default function KYCAddress({ register, errors }: Props) {
+export default function KYCAddress({ register, errors, fieldConfig = defaultKYCFieldConfig }: Props) {
   const countries = countryList().getData();
   const [addressLine, setAddressLine] = useState('');
   const [city, setCity] = useState('');
+  
+  // Utiliser la configuration par défaut si non spécifiée
+  const fields = fieldConfig.addressInfo;
 
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-6 text-center">Adresse</h2>
       <div className="space-y-4">
+        {/* Champs obligatoires - toujours affichés */}
         <Input
           value={addressLine}
           onChange={(e) => {
@@ -81,6 +87,37 @@ export default function KYCAddress({ register, errors }: Props) {
             </SelectItem>
           ))}
         </Select>
+
+        {/* Champs configurables */}
+        {fields.postalCode && (
+          <Input
+            {...register('postalCode')}
+            label="Code postal"
+            variant="bordered"
+            color="primary"
+            isInvalid={!!errors.postalCode}
+            errorMessage={errors.postalCode?.message}
+            classNames={{
+              label: "text-white/90",
+              input: "text-white",
+            }}
+          />
+        )}
+
+        {fields.state && (
+          <Input
+            {...register('state')}
+            label="État/Province/Région"
+            variant="bordered"
+            color="primary"
+            isInvalid={!!errors.state}
+            errorMessage={errors.state?.message}
+            classNames={{
+              label: "text-white/90",
+              input: "text-white",
+            }}
+          />
+        )}
       </div>
     </div>
   );
