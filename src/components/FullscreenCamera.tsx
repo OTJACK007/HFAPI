@@ -100,6 +100,7 @@ const FullscreenCamera: React.FC<FullscreenCameraProps> = ({
             height: isFullscreen ? { ideal: 1080 } : { ideal: 720 },
           }}
           onUserMedia={() => isCaptureReady !== undefined && webcamRef.current !== null}
+          mirrored={false} // Désactive l'effet miroir pour toutes les caméras
         />
         
         {/* Boutons de contrôle */}
