@@ -1,4 +1,5 @@
 // Configuration du thème pour le processus KYC (Know Your Customer)
+import { BackgroundGradientConfig, GlowEffectConfig, AnimationConfig, defaultBackgroundGradient, defaultGlowEffect, defaultAnimations } from './ThemeEffects';
 
 export interface KYCThemeConfig {
   // Mode thème : clair ou sombre
@@ -44,16 +45,29 @@ export interface KYCThemeConfig {
     md?: string;
     lg?: string;
   };
+  
+  // Configuration des effets visuels
+  effects?: {
+    // Configuration du gradient d'arrière-plan
+    backgroundGradient?: BackgroundGradientConfig;
+    
+    // Configuration de l'effet de lueur
+    glow?: GlowEffectConfig;
+    
+    // Configuration des animations
+    animations?: AnimationConfig;
+  };
 }
 
 // Thème par défaut - correspond au thème actuel de l'application
+// MODIFIEZ CES VALEURS POUR CHANGER LE THÈME KYC
 export const defaultKYCTheme: KYCThemeConfig = {
   theme: 'dark',
   colors: {
-    primary: '#ff3366',
-    buttonColor: '#ff3366',
+    primary: '#ff3366',  // Couleur rose-rouge - MODIFIEZ CETTE VALEUR POUR CHANGER LA COULEUR PRIMAIRE
+    buttonColor: '#ff3366', // MODIFIEZ CETTE VALEUR POUR CHANGER LA COULEUR DES BOUTONS
     buttonTextColor: '#FFFFFF',
-    secondary: '#2eff94',
+    secondary: '#2eff94', // MODIFIEZ CETTE VALEUR POUR CHANGER LA COULEUR SECONDAIRE
     background: '#1A1A1A',
     textColor: '#FFFFFF',
     error: '#FF453A',
@@ -68,6 +82,24 @@ export const defaultKYCTheme: KYCThemeConfig = {
     sm: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
     md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
     lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+  },
+  effects: {
+    backgroundGradient: {
+      ...defaultBackgroundGradient,
+      fromColor: '#ff3366',  // Utilise la couleur primaire
+    },
+    glow: {
+      ...defaultGlowEffect,
+      color: '#ff3366',      // Utilise la couleur primaire
+    },
+    animations: {
+      ...defaultAnimations,
+      glow: {
+        ...defaultAnimations.glow,
+        fromColor: '#ff3366',  // Utilise la couleur primaire
+        toColor: '#2eff94'     // Utilise la couleur secondaire
+      }
+    }
   }
 };
 
@@ -93,16 +125,36 @@ export const lightKYCTheme: KYCThemeConfig = {
     sm: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
     md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
     lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+  },
+  effects: {
+    backgroundGradient: {
+      ...defaultBackgroundGradient,
+      fromColor: '#ff3366',  // Utilise la couleur primaire
+      toColor: '#FFFFFF',    // Utilise la couleur d'arrière-plan mode clair
+    },
+    glow: {
+      ...defaultGlowEffect,
+      color: '#ff3366',      // Utilise la couleur primaire
+      opacity: 0.6,          // Réduire l'opacité pour le mode clair
+    },
+    animations: {
+      ...defaultAnimations,
+      glow: {
+        ...defaultAnimations.glow,
+        fromColor: '#ff3366',  // Utilise la couleur primaire
+        toColor: '#2eff94'     // Utilise la couleur secondaire
+      }
+    }
   }
 };
 
 export const blueKYCTheme: KYCThemeConfig = {
   theme: 'dark',
   colors: {
-    primary: '#147dff',
-    buttonColor: '#147dff',
+    primary: '#147dff',       // Bleu
+    buttonColor: '#147dff',   // Bleu
     buttonTextColor: '#FFFFFF',
-    secondary: '#00E5FF',
+    secondary: '#00E5FF',     // Cyan
     background: '#121212',
     textColor: '#FFFFFF',
     error: '#FF453A',
@@ -117,6 +169,25 @@ export const blueKYCTheme: KYCThemeConfig = {
     sm: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
     md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
     lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+  },
+  effects: {
+    backgroundGradient: {
+      ...defaultBackgroundGradient,
+      fromColor: '#147dff',  // Utilise la couleur primaire
+      toColor: '#121212',    // Utilise la couleur d'arrière-plan
+    },
+    glow: {
+      ...defaultGlowEffect,
+      color: '#147dff',      // Utilise la couleur primaire
+    },
+    animations: {
+      ...defaultAnimations,
+      glow: {
+        ...defaultAnimations.glow,
+        fromColor: '#147dff',  // Utilise la couleur primaire
+        toColor: '#00E5FF'     // Utilise la couleur secondaire
+      }
+    }
   }
 };
 
@@ -135,6 +206,27 @@ export function mergeWithDefaultKYCTheme(customTheme: Partial<KYCThemeConfig>): 
     shadows: {
       ...defaultKYCTheme.shadows,
       ...(customTheme.shadows || {})
+    },
+    effects: {
+      backgroundGradient: {
+        ...(defaultKYCTheme.effects?.backgroundGradient || defaultBackgroundGradient),
+        ...(customTheme.effects?.backgroundGradient || {})
+      },
+      glow: {
+        ...(defaultKYCTheme.effects?.glow || defaultGlowEffect),
+        ...(customTheme.effects?.glow || {})
+      },
+      animations: {
+        ...(defaultKYCTheme.effects?.animations || defaultAnimations),
+        pulse: {
+          ...(defaultKYCTheme.effects?.animations?.pulse || defaultAnimations.pulse),
+          ...(customTheme.effects?.animations?.pulse || {})
+        },
+        glow: {
+          ...(defaultKYCTheme.effects?.animations?.glow || defaultAnimations.glow),
+          ...(customTheme.effects?.animations?.glow || {})
+        }
+      }
     }
   };
 }

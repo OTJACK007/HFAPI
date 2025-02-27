@@ -2,6 +2,7 @@ import React, { useEffect, ReactNode } from 'react';
 import { useThemeContext } from '../contexts/ThemeContext';
 import { KYCThemeConfig } from '../config/KYCTheme';
 import { KYBThemeConfig } from '../config/KYBTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 interface ThemeWrapperProps {
   children: ReactNode;
@@ -17,54 +18,78 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({
   // Déterminer quel thème utiliser en fonction du type
   const theme = themeType === 'kyc' ? kycTheme : kybTheme;
   
+  // Utiliser le hook pour générer tous les styles nécessaires
+  const themeStyles = useThemeStyles(themeType, theme);
+  
   // Appliquer les CSS variables au niveau du conteneur
   useEffect(() => {
     const isLightTheme = theme.theme === 'light';
+    const root = document.documentElement;
     
     // Appliquer la classe de thème au document
     if (isLightTheme) {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
+      root.classList.remove('dark');
+      root.classList.add('light');
     } else {
-      document.documentElement.classList.remove('light');
-      document.documentElement.classList.add('dark');
+      root.classList.remove('light');
+      root.classList.add('dark');
     }
     
     // Appliquer les variables CSS personnalisées
-    document.documentElement.style.setProperty('--primary', theme.colors.primary);
-    document.documentElement.style.setProperty('--primary-foreground', theme.colors.buttonTextColor);
-    
-    // Appliquer la couleur du bouton
-    document.documentElement.style.setProperty('--button-color', theme.colors.buttonColor);
-    document.documentElement.style.setProperty('--button-text-color', theme.colors.buttonTextColor);
-    
-    if (theme.colors.secondary) {
-      document.documentElement.style.setProperty('--secondary', theme.colors.secondary);
+    for (const [key, value] of Object.entries(themeStyles.cssVariables)) {
+      root.style.setProperty(key, value);
     }
+    
+    // Ajouter des styles personnalisés pour écraser les classes Tailwind
+    const styleId = 'dynamic-theme-styles';
+    let styleElement = document.getElementById(styleId) as HTMLStyleElement;
+    
+    if (!styleElement) {
+      styleElement = document.createElement('style');
+      styleElement.id = styleId;
+      document.head.appendChild(styleElement);
+    }
+    
+    // Créer des règles CSS qui vont surcharger les classes Tailwind
+    styleElement.textContent = `
+      /* Surcharge des couleurs Tailwind */
+      .bg-primary {
+        background-color: ${themeStyles.colors.primary} !important;
+      }
+      .text-primary {
+        color: ${themeStyles.colors.primary} !important;
+      }
+      .border-primary {
+        border-color: ${themeStyles.colors.primary} !important;
+      }
+      
+      /* Surcharge pour les boutons NextUI */
+      [data-slot="base"][data-color="primary"] {
+        background-color: ${themeStyles.colors.buttonColor} !important;
+        color: ${themeStyles.colors.buttonTextColor} !important;
+      }
+      
+      /* Surcharge pour les éléments d'animation */
+      .animate-glow {
+        animation: ${themeStyles.animations.glow} !important;
+        box-shadow: ${themeStyles.effects.glow} !important;
+      }
+      
+      /* Arrière-plan radial */
+      .bg-gradient-radial {
+        background-image: ${themeStyles.effects.backgroundGradient} !important;
+      }
+    `;
     
     // Nettoyage lors du démontage du composant
     return () => {
-      // Réinitialiser les variables CSS si nécessaire
-      // Ou les remettre à leurs valeurs par défaut
+      if (styleElement && styleElement.parentNode) {
+        styleElement.parentNode.removeChild(styleElement);
+      }
     };
-  }, [theme]);
+  }, [theme, themeStyles]);
   
-  // Style de base pour le conteneur en fonction du thème
-  const containerStyle = {
-    backgroundColor: theme.theme === 'light' 
-      ? theme.colors.background || '#FFFFFF' 
-      : theme.colors.background || '#1A1A1A',
-    color: theme.theme === 'light'
-      ? theme.colors.textColor || '#333333'
-      : theme.colors.textColor || '#FFFFFF',
-    minHeight: '100vh', // Assurer que le conteneur couvre toute la hauteur
-  };
-  
-  return (
-    <div style={containerStyle}>
-      {children}
-    </div>
-  );
+  return <>{children}</>;
 };
 
 // Composant de wrapper spécifique pour KYC

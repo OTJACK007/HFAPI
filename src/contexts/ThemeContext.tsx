@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { KYCThemeConfig, defaultKYCTheme, mergeWithDefaultKYCTheme } from '../config/KYCTheme';
-import { KYBThemeConfig, defaultKYBTheme, mergeWithDefaultKYBTheme } from '../config/KYBTheme';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { KYCThemeConfig, defaultKYCTheme, mergeWithDefaultKYCTheme, blueKYCTheme, lightKYCTheme } from '../config/KYCTheme';
+import { KYBThemeConfig, defaultKYBTheme, mergeWithDefaultKYBTheme, enterpriseKYBTheme, lightKYBTheme as lightKYBTheme } from '../config/KYBTheme';
 
 interface ThemeContextType {
   kycTheme: KYCThemeConfig;
@@ -9,6 +9,8 @@ interface ThemeContextType {
   setKYBTheme: (theme: Partial<KYBThemeConfig>) => void;
   resetKYCTheme: () => void;
   resetKYBTheme: () => void;
+  applyKYCTheme: (themeName: string) => void;
+  applyKYBTheme: (themeName: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -17,7 +19,9 @@ const ThemeContext = createContext<ThemeContextType>({
   setKYCTheme: () => {},
   setKYBTheme: () => {},
   resetKYCTheme: () => {},
-  resetKYBTheme: () => {}
+  resetKYBTheme: () => {},
+  applyKYCTheme: () => {},
+  applyKYBTheme: () => {}
 });
 
 interface ThemeProviderProps {
@@ -31,52 +35,109 @@ export const ThemeProvider = ({
   initialKYCTheme, 
   initialKYBTheme 
 }: ThemeProviderProps) => {
-  const [kycTheme, setKYCThemeState] = useState<KYCThemeConfig>(
-    initialKYCTheme ? mergeWithDefaultKYCTheme(initialKYCTheme) : defaultKYCTheme
-  );
-  
-  const [kybTheme, setKYBThemeState] = useState<KYBThemeConfig>(
-    initialKYBTheme ? mergeWithDefaultKYBTheme(initialKYBTheme) : defaultKYBTheme
-  );
+  // Utiliser directement les thèmes par défaut des fichiers de configuration
+  const [kycTheme, setKYCThemeState] = useState<KYCThemeConfig>(defaultKYCTheme);
+  const [kybTheme, setKYBThemeState] = useState<KYBThemeConfig>(defaultKYBTheme);
+
+  // Force un rafraîchissement de l'interface lors du chargement
+  useEffect(() => {
+    // Appliquer immédiatement les thèmes par défaut des fichiers de configuration
+    setKYCThemeState(defaultKYCTheme);
+    setKYBThemeState(defaultKYBTheme);
+  }, []);
 
   // Mettre à jour le thème KYC
   const setKYCTheme = (theme: Partial<KYCThemeConfig>) => {
-    setKYCThemeState(currentTheme => ({
-      ...currentTheme,
-      ...theme,
-      colors: {
-        ...currentTheme.colors,
-        ...(theme.colors || {})
-      },
-      borderRadius: {
-        ...currentTheme.borderRadius,
-        ...(theme.borderRadius || {})
-      },
-      shadows: {
-        ...currentTheme.shadows,
-        ...(theme.shadows || {})
-      }
-    }));
+    setKYCThemeState(currentTheme => {
+      const newTheme = {
+        ...currentTheme,
+        ...theme,
+        colors: {
+          ...currentTheme.colors,
+          ...(theme.colors || {})
+        },
+        borderRadius: {
+          ...currentTheme.borderRadius,
+          ...(theme.borderRadius || {})
+        },
+        shadows: {
+          ...currentTheme.shadows,
+          ...(theme.shadows || {})
+        },
+        effects: {
+          ...currentTheme.effects,
+          ...(theme.effects || {}),
+          backgroundGradient: {
+            ...(currentTheme.effects?.backgroundGradient || {}),
+            ...(theme.effects?.backgroundGradient || {})
+          },
+          glow: {
+            ...(currentTheme.effects?.glow || {}),
+            ...(theme.effects?.glow || {})
+          },
+          animations: {
+            ...(currentTheme.effects?.animations || {}),
+            ...(theme.effects?.animations || {}),
+            pulse: {
+              ...(currentTheme.effects?.animations?.pulse || {}),
+              ...(theme.effects?.animations?.pulse || {})
+            },
+            glow: {
+              ...(currentTheme.effects?.animations?.glow || {}),
+              ...(theme.effects?.animations?.glow || {})
+            }
+          }
+        }
+      };
+      return newTheme;
+    });
   };
 
   // Mettre à jour le thème KYB
   const setKYBTheme = (theme: Partial<KYBThemeConfig>) => {
-    setKYBThemeState(currentTheme => ({
-      ...currentTheme,
-      ...theme,
-      colors: {
-        ...currentTheme.colors,
-        ...(theme.colors || {})
-      },
-      borderRadius: {
-        ...currentTheme.borderRadius,
-        ...(theme.borderRadius || {})
-      },
-      shadows: {
-        ...currentTheme.shadows,
-        ...(theme.shadows || {})
-      }
-    }));
+    setKYBThemeState(currentTheme => {
+      const newTheme = {
+        ...currentTheme,
+        ...theme,
+        colors: {
+          ...currentTheme.colors,
+          ...(theme.colors || {})
+        },
+        borderRadius: {
+          ...currentTheme.borderRadius,
+          ...(theme.borderRadius || {})
+        },
+        shadows: {
+          ...currentTheme.shadows,
+          ...(theme.shadows || {})
+        },
+        effects: {
+          ...currentTheme.effects,
+          ...(theme.effects || {}),
+          backgroundGradient: {
+            ...(currentTheme.effects?.backgroundGradient || {}),
+            ...(theme.effects?.backgroundGradient || {})
+          },
+          glow: {
+            ...(currentTheme.effects?.glow || {}),
+            ...(theme.effects?.glow || {})
+          },
+          animations: {
+            ...(currentTheme.effects?.animations || {}),
+            ...(theme.effects?.animations || {}),
+            pulse: {
+              ...(currentTheme.effects?.animations?.pulse || {}),
+              ...(theme.effects?.animations?.pulse || {})
+            },
+            glow: {
+              ...(currentTheme.effects?.animations?.glow || {}),
+              ...(theme.effects?.animations?.glow || {})
+            }
+          }
+        }
+      };
+      return newTheme;
+    });
   };
 
   // Réinitialiser au thème KYC par défaut
@@ -88,6 +149,40 @@ export const ThemeProvider = ({
   const resetKYBTheme = () => {
     setKYBThemeState(defaultKYBTheme);
   };
+  
+  // Appliquer un thème KYC prédéfini
+  const applyKYCTheme = (themeName: string) => {
+    switch (themeName) {
+      case 'default':
+        setKYCThemeState(defaultKYCTheme);
+        break;
+      case 'blue':
+        setKYCThemeState(blueKYCTheme);
+        break;
+      case 'light':
+        setKYCThemeState(lightKYCTheme);
+        break;
+      default:
+        console.warn(`Thème KYC inconnu: ${themeName}`);
+    }
+  };
+  
+  // Appliquer un thème KYB prédéfini
+  const applyKYBTheme = (themeName: string) => {
+    switch (themeName) {
+      case 'default':
+        setKYBThemeState(defaultKYBTheme);
+        break;
+      case 'enterprise':
+        setKYBThemeState(enterpriseKYBTheme);
+        break;
+      case 'light':
+        setKYBThemeState(lightKYBTheme);
+        break;
+      default:
+        console.warn(`Thème KYB inconnu: ${themeName}`);
+    }
+  };
 
   return (
     <ThemeContext.Provider 
@@ -97,7 +192,9 @@ export const ThemeProvider = ({
         setKYCTheme, 
         setKYBTheme, 
         resetKYCTheme, 
-        resetKYBTheme 
+        resetKYBTheme,
+        applyKYCTheme,
+        applyKYBTheme
       }}
     >
       {children}
