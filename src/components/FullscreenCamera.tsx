@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@nextui-org/react";
 import { Maximize, Minimize, Camera, RotateCw, X } from "lucide-react";
 import Webcam from "react-webcam";
+import { useCameraContext } from '../contexts/CameraContext';
 
 interface FullscreenCameraProps {
   onCapture: (imageSrc: string) => void;
@@ -25,6 +26,17 @@ const FullscreenCamera: React.FC<FullscreenCameraProps> = ({
   isCaptureReady
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { setFullscreenActive } = useCameraContext();
+  
+  // Mise à jour du contexte global lorsque l'état du plein écran change
+  useEffect(() => {
+    setFullscreenActive(isFullscreen);
+    
+    // Nettoyage: remettre à false lorsque le composant est démonté
+    return () => {
+      setFullscreenActive(false);
+    };
+  }, [isFullscreen, setFullscreenActive]);
   
   const handleToggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
@@ -87,6 +99,7 @@ const FullscreenCamera: React.FC<FullscreenCameraProps> = ({
             width: isFullscreen ? { ideal: 1920 } : { ideal: 1280 },
             height: isFullscreen ? { ideal: 1080 } : { ideal: 720 },
           }}
+          onUserMedia={() => isCaptureReady !== undefined && webcamRef.current !== null}
         />
         
         {/* Boutons de contrôle */}

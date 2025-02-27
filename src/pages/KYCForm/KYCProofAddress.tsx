@@ -59,13 +59,9 @@ export default function KYCProofAddress({
   };
 
   const handleContinue = () => {
-    // IMPORTANT: Masquer l'animation d'abord, puis naviguer
     setShowScanAnimation(false);
-    // Utilisons setTimeout pour s'assurer que le state a bien été mis à jour
-    // avant de naviguer vers la prochaine étape
-    setTimeout(() => {
-      nextStep();
-    }, 10);
+    // Passer à l'étape suivante dans le flux de vérification
+    nextStep();
   };
 
   return (

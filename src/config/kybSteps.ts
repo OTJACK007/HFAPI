@@ -17,15 +17,15 @@ export interface KYBStepConfig {
   businessDocType: boolean;
   businessDocCapture: boolean;
   
-  // Justificatif de domicile
-  addressDocSelection: boolean;
-  addressDocCapture: boolean;
-  
   // Documents d'identité du représentant
   idDocSelection: boolean;
   idDocNumber: boolean;
   idDocRectoCapture: boolean;
   idDocVersoCapture: boolean;
+  
+  // Justificatif de domicile du représentant
+  addressDocSelection: boolean;
+  addressDocCapture: boolean;
   
   // Vérification biométrique
   mobileOption: boolean; // Cette étape est toujours activée dans la config, mais sera sautée automatiquement sur mobile
@@ -42,12 +42,12 @@ export const defaultKYBConfig: KYBStepConfig = {
   addressInfo: true,
   businessDocType: true,
   businessDocCapture: true,
-  addressDocSelection: true,
-  addressDocCapture: true,
   idDocSelection: true,
   idDocNumber: true,
   idDocRectoCapture: true,
   idDocVersoCapture: true,
+  addressDocSelection: true,
+  addressDocCapture: true,
   mobileOption: true, // Obligatoire dans la configuration, mais sera ignoré sur mobile
   selfieCapture: true,
   livenessDetection: true
@@ -64,12 +64,12 @@ export function getActiveKYBSteps(config: KYBStepConfig = defaultKYBConfig): str
   if (config.addressInfo) steps.push('addressInfo');
   if (config.businessDocType) steps.push('businessDocType');
   if (config.businessDocCapture) steps.push('businessDocCapture');
-  if (config.addressDocSelection) steps.push('addressDocSelection');
-  if (config.addressDocCapture) steps.push('addressDocCapture');
   if (config.idDocSelection) steps.push('idDocSelection');
   if (config.idDocNumber) steps.push('idDocNumber');
   if (config.idDocRectoCapture) steps.push('idDocRectoCapture');
   if (config.idDocVersoCapture) steps.push('idDocVersoCapture');
+  if (config.addressDocSelection) steps.push('addressDocSelection');
+  if (config.addressDocCapture) steps.push('addressDocCapture');
   if (config.mobileOption) steps.push('mobileOption'); // Toujours inclus dans les étapes actives selon la config
   if (config.selfieCapture) steps.push('selfieCapture');
   if (config.livenessDetection) steps.push('livenessDetection');
@@ -86,12 +86,12 @@ export const minimalKYBConfig: KYBStepConfig = {
   addressInfo: true,
   businessDocType: true,
   businessDocCapture: true,
-  addressDocSelection: false,
-  addressDocCapture: false,
   idDocSelection: true,
   idDocNumber: true,
   idDocRectoCapture: true,
   idDocVersoCapture: false,
+  addressDocSelection: false,
+  addressDocCapture: false,
   mobileOption: true, // Toujours obligatoire dans la config
   selfieCapture: false,
   livenessDetection: false
@@ -105,12 +105,12 @@ export const standardKYBConfig: KYBStepConfig = {
   addressInfo: true,
   businessDocType: true,
   businessDocCapture: true,
-  addressDocSelection: true,
-  addressDocCapture: true,
   idDocSelection: true,
   idDocNumber: true,
   idDocRectoCapture: true,
   idDocVersoCapture: true,
+  addressDocSelection: true,
+  addressDocCapture: true,
   mobileOption: true, // Toujours obligatoire dans la config
   selfieCapture: true,
   livenessDetection: false

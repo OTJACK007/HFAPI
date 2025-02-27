@@ -166,7 +166,7 @@ export const DocumentScanAnimation: React.FC<DocumentScanAnimationProps> = ({
           <div className="flex gap-3 pt-2">
             {(currentStep === 'complete' || currentStep === 'failed') && (
               <>
-                {currentStep === 'failed' && (
+                {!isSuccess && (
                   <Button
                     variant="flat"
                     color="danger"
@@ -178,7 +178,7 @@ export const DocumentScanAnimation: React.FC<DocumentScanAnimationProps> = ({
                   </Button>
                 )}
                 
-                {currentStep === 'complete' && (
+                {isSuccess && (
                   <Button
                     color="success"
                     className="flex-1"

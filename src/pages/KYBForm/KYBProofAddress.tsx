@@ -67,13 +67,13 @@ export default function KYBProofAddress({
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-6 text-center">
-        Justificatif de domicile professionnel
+        Justificatif de domicile du représentant
       </h2>
       
       <div className="flex items-center gap-3 bg-primary/10 p-3 rounded-lg mb-4">
         <FileText className="text-primary w-6 h-6 flex-shrink-0" />
         <p className="text-sm text-white">
-          Veuillez prendre en photo votre {getDocumentTitle().toLowerCase()} ou télécharger le document
+          Veuillez prendre en photo le {getDocumentTitle().toLowerCase()} du représentant légal ou télécharger le document
         </p>
       </div>
       
@@ -85,7 +85,7 @@ export default function KYBProofAddress({
             onFlipCamera={flipCamera}
             onCapture={handleCapture}
             isCaptureReady={isCaptureReady}
-            frameText="Alignez votre document dans le cadre et assurez-vous qu'il est lisible"
+            frameText="Alignez le document dans le cadre et assurez-vous qu'il est lisible"
           />
           
           {!showScanAnimation && (
@@ -129,7 +129,7 @@ export default function KYBProofAddress({
               <div className="flex flex-col items-center justify-center text-center">
                 <Upload className="w-12 h-12 mb-4 text-primary" />
                 <p className="text-sm text-gray-400">
-                  Téléchargez votre {getDocumentTitle().toLowerCase()} ou sélectionnez une image
+                  Téléchargez le {getDocumentTitle().toLowerCase()} du représentant ou sélectionnez une image
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
                   Formats acceptés : PDF, JPG, PNG

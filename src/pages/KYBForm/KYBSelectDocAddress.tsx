@@ -34,11 +34,11 @@ export default function KYBSelectDocAddress({ register, errors, fieldConfig = de
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold mb-6 text-center">Justificatif de domicile de l'entreprise</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Justificatif de domicile du représentant</h2>
       
       <div className="bg-primary/10 p-4 rounded-lg mb-4">
         <p className="text-sm text-white">
-          Veuillez sélectionner le type de justificatif de domicile professionnel que vous souhaitez fournir.
+          Veuillez sélectionner le type de justificatif de domicile du représentant légal que vous souhaitez fournir.
         </p>
       </div>
       
@@ -71,10 +71,9 @@ export default function KYBSelectDocAddress({ register, errors, fieldConfig = de
         <h3 className="text-sm font-semibold mb-2">Conditions d'acceptation</h3>
         <ul className="text-sm text-gray-400 space-y-2">
           <li>• Document de moins de 3 mois</li>
-          <li>• Document au nom de l'entreprise</li>
-          <li>• Adresse professionnelle complète visible</li>
+          <li>• Document au nom du représentant légal</li>
+          <li>• Adresse personnelle complète visible</li>
           <li>• Document lisible et non altéré</li>
-          <li>• Cachet ou signature officielle si applicable</li>
         </ul>
       </div>
 

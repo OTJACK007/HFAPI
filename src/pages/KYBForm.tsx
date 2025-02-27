@@ -11,6 +11,7 @@ import { KYBFieldConfig, defaultKYBFieldConfig } from '../config/kybFields';
 import { KYBThemeConfig, defaultKYBTheme } from '../config/KYBTheme';
 import { useKYBFlow } from '../hooks/useKYBFlow';
 import { KYBThemeWrapper } from '../components/ThemeWrapper';
+import { useCameraContext } from '../contexts/CameraContext';
 
 import KYBCompanyInfo from './KYBForm/KYBCompanyInfo';
 import KYBRepresentativeInfo from './KYBForm/KYBRepresentativeInfo';
@@ -49,6 +50,7 @@ export default function KYBForm({
   const [addressDoc, setAddressDoc] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const { isFullscreenActive } = useCameraContext();
 
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -278,39 +280,41 @@ export default function KYBForm({
           {/* Gradient Background */}
           <div className="absolute inset-0 bg-gradient-radial from-primary/20 via-background to-background" />
           
-          {/* Header with Progress */}
-          <div className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm z-50">
-            <div className="max-w-md mx-auto px-4 py-4">
-              <div className="flex justify-center mb-4">
-                <img
-                  src="https://rfpjrfuuupsnlehsmhfo.supabase.co/storage/v1/object/public/myfile/logo%20brands/newHlogoHumanface%20(1).png"
-                  alt="HumanFace Logo"
-                  className="h-8"
+          {/* Header with Progress - Hidden when camera is in fullscreen mode */}
+          {!isFullscreenActive && (
+            <div className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm z-50">
+              <div className="max-w-md mx-auto px-4 py-4">
+                <div className="flex justify-center mb-4">
+                  <img
+                    src="https://rfpjrfuuupsnlehsmhfo.supabase.co/storage/v1/object/public/myfile/logo%20brands/newHlogoHumanface%20(1).png"
+                    alt="HumanFace Logo"
+                    className="h-8"
+                  />
+                </div>
+                <div className="flex items-center justify-between mb-2">
+                  <h1 className="text-lg font-semibold">Vérification d'entreprise</h1>
+                  <span className="text-sm text-primary">
+                    {currentStepIndex + 1}/{totalSteps}
+                  </span>
+                </div>
+                <Progress 
+                  value={((currentStepIndex + 1) / totalSteps) * 100}
+                  className="h-1"
+                  color="primary"
                 />
               </div>
-              <div className="flex items-center justify-between mb-2">
-                <h1 className="text-lg font-semibold">Vérification d'entreprise</h1>
-                <span className="text-sm text-primary">
-                  {currentStepIndex + 1}/{totalSteps}
-                </span>
-              </div>
-              <Progress 
-                value={((currentStepIndex + 1) / totalSteps) * 100}
-                className="h-1"
-                color="primary"
-              />
             </div>
-          </div>
+          )}
 
-          {/* Main Content */}
-          <div className="relative z-10 pt-24 pb-24 px-4">
+          {/* Main Content - Adjust padding when in fullscreen mode */}
+          <div className={`relative z-10 ${isFullscreenActive ? '' : 'pt-24'} pb-24 px-4`}>
             <div className="max-w-md mx-auto">
               <Card className="bg-background/40 border border-white/10">
                 <CardBody className="p-6">
                   <div className="space-y-8">
                     {renderStep()}
                     
-                    {showNavButtons() && (
+                    {showNavButtons() && !isFullscreenActive && (
                       <div className="flex gap-2 pt-4">
                         {currentStepIndex > 0 && (
                           <Button
@@ -333,16 +337,19 @@ export default function KYBForm({
                         </Button>
                       </div>
                     )}
-                    <div className="flex flex-col items-center gap-2 mt-8 pt-6 border-t border-white/10">
-                      <img
-                        src="https://rfpjrfuuupsnlehsmhfo.supabase.co/storage/v1/object/public/myfile/logo%20brands/LogoHumanfaceCarre.png"
-                        alt="HumanFace Logo"
-                        className="w-8 h-8"
-                      />
-                      <p className="text-xs text-gray-500">
-                        powered by <a href="https://humanface.xyz" className="hover:text-primary transition-colors">humanface.xyz</a>
-                      </p>
-                    </div>
+                    
+                    {!isFullscreenActive && (
+                      <div className="flex flex-col items-center gap-2 mt-8 pt-6 border-t border-white/10">
+                        <img
+                          src="https://rfpjrfuuupsnlehsmhfo.supabase.co/storage/v1/object/public/myfile/logo%20brands/LogoHumanfaceCarre.png"
+                          alt="HumanFace Logo"
+                          className="w-8 h-8"
+                        />
+                        <p className="text-xs text-gray-500">
+                          powered by <a href="https://humanface.xyz" className="hover:text-primary transition-colors">humanface.xyz</a>
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </CardBody>
               </Card>
