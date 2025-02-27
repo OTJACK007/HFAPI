@@ -1,29 +1,33 @@
 import { useState, useRef } from "react";
 import { Card, CardBody, Button } from "@nextui-org/react";
-import { Upload, Camera, RotateCw } from "lucide-react";
+import { Upload, Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import Webcam from "react-webcam";
 import { KYCFieldConfig, defaultKYCFieldConfig } from "../../config/kycFields";
 import { DocumentScanAnimation } from "../../components/DocumentScanAnimation";
-import { useKYCFlow } from "../../hooks/useKYCFlow";
 import FullscreenCamera from "../../components/FullscreenCamera";
 
 interface Props {
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T) => T;
   fieldConfig?: KYCFieldConfig;
+  onNext: () => void;
+  onBack: () => void;
 }
 
-export default function KYCRecto({ getRootProps, getInputProps, fieldConfig = defaultKYCFieldConfig }: Props) {
+export default function KYCRecto({ 
+  getRootProps, 
+  getInputProps, 
+  fieldConfig = defaultKYCFieldConfig,
+  onNext,
+  onBack
+}: Props) {
   const [useCamera, setUseCamera] = useState(true);
   const [isCaptureReady, setIsCaptureReady] = useState(false);
   const webcamRef = useRef<Webcam>(null);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [showScanAnimation, setShowScanAnimation] = useState(false);
-  
-  // Accéder à la fonction nextStep du flux KYC
-  const { nextStep } = useKYCFlow();
   
   // Option d'upload de document activée ou non
   const allowUpload = fieldConfig.documentCapture.allowDocumentUpload;
@@ -45,7 +49,7 @@ export default function KYCRecto({ getRootProps, getInputProps, fieldConfig = de
   const handleContinue = () => {
     setShowScanAnimation(false);
     // Passer à l'étape suivante (verso du document)
-    nextStep();
+    onNext();
   };
 
   return (
@@ -121,6 +125,28 @@ export default function KYCRecto({ getRootProps, getInputProps, fieldConfig = de
             startContent={<Camera className="w-5 h-5" />}
           >
             Utiliser la caméra à la place
+          </Button>
+        </div>
+      )}
+      
+      {!showScanAnimation && (
+        <div className="flex gap-2 pt-4">
+          <Button
+            type="button"
+            variant="bordered"
+            onClick={onBack}
+            startContent={<ChevronLeft size={20} />}
+            className="flex-1 text-white"
+          >
+            Retour
+          </Button>
+          <Button
+            onClick={onNext}
+            color="primary"
+            className="flex-1 text-white"
+            endContent={<ChevronRight size={20} />}
+          >
+            Continuer
           </Button>
         </div>
       )}

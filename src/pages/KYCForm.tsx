@@ -170,6 +170,8 @@ export default function KYCForm({
           getRootProps={getFrontProps} 
           getInputProps={getFrontInputProps}
           fieldConfig={fieldConfig}
+          onNext={nextStep}
+          onBack={prevStep}
         />;
 
       case 'documentVersoCapture':
@@ -177,13 +179,17 @@ export default function KYCForm({
           getRootProps={getBackProps} 
           getInputProps={getBackInputProps}
           fieldConfig={fieldConfig}
+          onNext={nextStep}
+          onBack={prevStep}
         />;
         
       case 'addressDocSelection':
         return <KYCSelectDocAddress 
           register={register} 
           errors={errors} 
-          fieldConfig={fieldConfig} 
+          fieldConfig={fieldConfig}
+          onNext={nextStep}
+          onBack={prevStep}
         />;
         
       case 'addressDocCapture':
@@ -192,6 +198,8 @@ export default function KYCForm({
           getInputProps={getAddressDocInputProps}
           fieldConfig={fieldConfig}
           addressDocType={addressDocType}
+          onNext={nextStep}
+          onBack={prevStep}
         />;
 
       case 'mobileOption':
@@ -222,6 +230,10 @@ export default function KYCForm({
       'emailVerification', 
       'phoneVerification', 
       'documentIdNumber', 
+      'documentRectoCapture',
+      'documentVersoCapture',
+      'addressDocSelection',
+      'addressDocCapture',
       'mobileOption', 
       'livenessDetection'
     ];

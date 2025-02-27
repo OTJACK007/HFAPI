@@ -1,9 +1,8 @@
-import { Select, SelectItem } from "@nextui-org/react";
-import { useNavigate } from 'react-router-dom';
+import { Select, SelectItem, Button } from "@nextui-org/react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormData } from "./types";
 import { KYCFieldConfig, defaultKYCFieldConfig } from "../../config/kycFields";
-import { useKYCFlow } from "../../hooks/useKYCFlow";
 
 interface AddressDocOption {
   key: string;
@@ -15,12 +14,17 @@ interface Props {
   register: UseFormRegister<FormData>;
   errors: FieldErrors<FormData>;
   fieldConfig?: KYCFieldConfig;
+  onNext?: () => void;
+  onBack?: () => void;
 }
 
-export default function KYCSelectDocAddress({ register, errors, fieldConfig = defaultKYCFieldConfig }: Props) {
-  // Accéder à la fonction nextStep du flux KYC
-  const { nextStep } = useKYCFlow();
-  
+export default function KYCSelectDocAddress({ 
+  register, 
+  errors, 
+  fieldConfig = defaultKYCFieldConfig,
+  onNext,
+  onBack
+}: Props) {
   // Liste complète des types de justificatifs de domicile
   const allAddressDocOptions: AddressDocOption[] = [
     { key: "bill", value: "bill", label: "Facture (électricité, eau, téléphone, etc.)" },
@@ -76,6 +80,27 @@ export default function KYCSelectDocAddress({ register, errors, fieldConfig = de
           <li>• Adresse complète visible</li>
           <li>• Document lisible et non altéré</li>
         </ul>
+      </div>
+      
+      {/* Boutons de navigation */}
+      <div className="flex gap-2 pt-4">
+        <Button
+          type="button"
+          variant="bordered"
+          onClick={onBack}
+          startContent={<ChevronLeft size={20} />}
+          className="flex-1 text-white"
+        >
+          Retour
+        </Button>
+        <Button
+          onClick={onNext}
+          color="primary"
+          className="flex-1 text-white"
+          endContent={<ChevronRight size={20} />}
+        >
+          Continuer
+        </Button>
       </div>
     </div>
   );
