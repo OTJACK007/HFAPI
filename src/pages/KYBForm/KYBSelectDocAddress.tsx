@@ -1,4 +1,5 @@
-import { Select, SelectItem } from "@nextui-org/react";
+import { Select, SelectItem, Button } from "@nextui-org/react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormData } from "./types";
 import { KYBFieldConfig, defaultKYBFieldConfig } from "../../config/kybFields";
@@ -75,6 +76,27 @@ export default function KYBSelectDocAddress({ register, errors, fieldConfig = de
           <li>• Document lisible et non altéré</li>
           <li>• Cachet ou signature officielle si applicable</li>
         </ul>
+      </div>
+
+      {/* Boutons de navigation */}
+      <div className="flex gap-2 pt-4">
+        <Button
+          type="button"
+          variant="bordered"
+          onClick={onBack}
+          startContent={<ChevronLeft size={20} />}
+          className="flex-1 text-white"
+        >
+          Retour
+        </Button>
+        <Button
+          onClick={onNext}
+          color="primary"
+          className="flex-1 text-white"
+          endContent={<ChevronRight size={20} />}
+        >
+          Continuer
+        </Button>
       </div>
     </div>
   );

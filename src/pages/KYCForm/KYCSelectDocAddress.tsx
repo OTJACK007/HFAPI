@@ -1,7 +1,5 @@
 import { Select, SelectItem } from "@nextui-org/react";
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@nextui-org/react";
-import { ChevronRight } from "lucide-react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormData } from "./types";
 import { KYCFieldConfig, defaultKYCFieldConfig } from "../../config/kycFields";
@@ -79,15 +77,6 @@ export default function KYCSelectDocAddress({ register, errors, fieldConfig = de
           <li>• Document lisible et non altéré</li>
         </ul>
       </div>
-      
-      <Button
-        onClick={nextStep}
-        color="primary"
-        className="w-full text-white mt-6"
-        endContent={<ChevronRight size={20} />}
-      >
-        Continuer
-      </Button>
     </div>
   );
 }
